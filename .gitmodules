@@ -1,3 +1,6 @@
 [submodule "kinc"]
 	path = kinc
 	url = https://github.com/Paolo-Oliverio/Kinc.git
+[submodule "thirdparty/entt/entt"]
+	path = thirdparty/entt/entt
+	url = https://github.com/skypjack/entt.git
