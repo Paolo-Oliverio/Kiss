@@ -1,0 +1,3 @@
+[submodule "kinc"]
+	path = kinc
+	url = https://github.com/Paolo-Oliverio/Kinc.git
