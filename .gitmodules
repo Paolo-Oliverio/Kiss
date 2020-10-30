@@ -4,3 +4,6 @@
 [submodule "thirdparty/entt/entt"]
 	path = thirdparty/entt/entt
 	url = https://github.com/skypjack/entt.git
+[submodule "thirdparty/hfsm2/hfsm2"]
+	path = thirdparty/hfsm2/hfsm2
+	url = https://github.com/andrew-gresyk/HFSM2.git
