@@ -103,7 +103,7 @@ namespace kiss {
 
 		void begin() {
 			//using namespace gfx2d;
-			gx::setPipeline(pipe);
+			//gx::setPipeline(pipe);
 			gx::setIndexBuffer(*gfx2d::quad::ibuffer);
 			gx::setMatrix(projection_matrix_location, gfx2d::matrices::proj);
 			index = 0;
@@ -112,7 +112,6 @@ namespace kiss {
 
 		inline void end() { 
 			if (index > 0) private_flush();
-			//gx::setPipeline(nullptr);
 		}
 
 		void set_atlas(kiss::atlas* new_atlas) {
