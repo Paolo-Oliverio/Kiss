@@ -7,3 +7,6 @@
 [submodule "thirdparty/hfsm2/hfsm2"]
 	path = thirdparty/hfsm2/hfsm2
 	url = https://github.com/andrew-gresyk/HFSM2.git
+[submodule "thirdparty/imgui/imgui"]
+	path = thirdparty/imgui/imgui
+	url = https://github.com/ocornut/imgui.git
