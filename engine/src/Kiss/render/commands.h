@@ -179,11 +179,9 @@ namespace kiss {
 					read_pos = 0;
 				}
 
-				buffer():data(nullptr){}
-
-				~buffer() {
+				/*~buffer() {
 					if (data)delete[] data;
-				}
+				}*/
 	
 				buffer(u8 * ptr, u32 size) :
 					size(size), 
