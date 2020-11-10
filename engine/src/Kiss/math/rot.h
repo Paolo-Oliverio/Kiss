@@ -7,8 +7,8 @@ namespace kiss {
 		f32 c;
 		f32 s;
 		rot() :s(0.f), c(1.f) {}
-		rot(f32 radians) :s(math::sin(radians)), c(math::cos(radians)) {}
-		inline f32 get_angle()const { return math::atan2(s, c); }
+		rot(f32 radians) :s(kinc_sin(radians)), c(kinc_cos(radians)) {}
+		inline f32 get_angle()const { return kinc_atan2(s, c); }
 		inline v2 get_x_axis() { return v2(c, s); }
 		inline v2 get_y_axis() { return v2(s, c); }
 		v2 to_v2() { return v2(c, s); }

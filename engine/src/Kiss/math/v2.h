@@ -1,5 +1,6 @@
 #pragma once
 #include "math.h"
+#include <kinc/math/core.h>
 
 namespace kiss {
 	struct v2 {
@@ -9,10 +10,10 @@ namespace kiss {
 		v2(f32 x, f32 y) : x(x), y(y) {}
 
 		static v2 zero() { return v2(0.f, 0.f); }
-		static inline v2 fromAngle( f32 a)	{ return v2(math::cos(a), math::sin(a)); }
+		static inline v2 fromAngle( f32 a)	{ return v2(kinc_cos(a), kinc_sin(a)); }
 
-		static inline v2 min(v2 a, v2 b) { return v2(math::min(a.x, b.x), math::min(a.y, b.y)); }
-		static inline v2 max(v2 a, v2 b) { return v2(math::max(a.x, b.x), math::max(a.y, b.y)); }
+		static inline v2 min(v2 a, v2 b) { return v2(kinc_min(a.x, b.x), kinc_min(a.y, b.y)); }
+		static inline v2 max(v2 a, v2 b) { return v2(kinc_max(a.x, b.x), kinc_max(a.y, b.y)); }
 
 		inline void set(f32 b) { x = y = b; }
 		inline void set(f32 nx, f32 ny) { x = nx; y = ny; }
@@ -25,15 +26,15 @@ namespace kiss {
 		inline void operator *=	(f32 b) { x *= b; y *= y; }
 		inline void operator /=	(f32 b) { x /= b; y /= b; }
 
-		inline f32 min() { return math::min(x, y); }
-		inline f32 max() { return math::max(x, y); }
+		inline f32 min() { return kinc_min(x, y); }
+		inline f32 max() { return kinc_max(x, y); }
 
 		inline v2 cw90()	{ return v2(-y, x); }
 		inline v2 ccw90()	{ return v2(y, -x); }
-		inline v2 abs()		{ return v2(math::abs(x), math::abs(y)); }
-		inline f32 get_angle()				{ return math::atan2(y, x); }
+		inline v2 abs()		{ return v2(kinc_abs(x), kinc_abs(y)); }
+		inline f32 get_angle()				{ return kinc_atan2(y, x); }
 		
-		inline f32 len() { return math::sqrt(x * x + y * y); }
+		inline f32 len() { return kinc_sqrt(x * x + y * y); }
 		inline f32 lenSquared() { return (x * x + y * y); }
 		inline f32 invLen() { return 1 / (len() + cEpsilon); }
 		inline v2 normalized() {
@@ -53,8 +54,8 @@ namespace kiss {
 
 	inline f32	det2( v2 a,  v2 b)				{ return a.x * b.y - a.y * b.x; }
 	inline f32	dot( v2 a,  v2 b)					{ return a.x * b.x + a.y * b.y; }
-	inline v2	clamp( v2 a,  v2 lo,  v2 hi)	{ return v2::max(lo, v2::min(a, hi)); }
-	inline f32	cross( v2 v1,  v2 v2)				{ return v1.x * v2.y - v1.y * v2.x; }
+	inline static v2 clamp( v2 a,  v2 lo,  v2 hi)	{ return v2::max(lo, v2::min(a, hi)); }
+	inline static f32 cross( v2 v1,  v2 v2)			{ return v1.x * v2.y - v1.y * v2.x; }
 	
 	inline v2	lerp( v2 a,  v2 b,  f32 t)	{ return a + (b - a) * t; }
 	inline v2	operator-(v2 a) {return v2(-a.x, -a.y); }
@@ -71,14 +72,14 @@ namespace kiss {
 
 	inline v2 closestPointOnSegment(v2 p,v2 a, v2 b) {
 		v2 delta = a - b;
-		f32 t = math::clamp(dot(delta, (p - b)) / delta.lenSquared(), 0.f, 1.f);
+		f32 t = kinc_clamp(dot(delta, (p - b)) / delta.lenSquared(), 0.f, 1.f);
 		return b + (delta * t);
 	}
 	inline int parallel(v2 a, v2 b, f32 tol)
 	{
 		f32 k = a.len() / b.len();
 		b = b * k;
-		if (math::abs(a.x - b.x) < tol && math::abs(a.y - b.y) < tol) return 1;
+		if (kinc_abs(a.x - b.x) < tol && kinc_abs(a.y - b.y) < tol) return 1;
 		return 0;
 	}
 }

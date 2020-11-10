@@ -115,8 +115,8 @@ namespace kiss {
 		const f32 hw = bb.halfWidth();
 		const f32 hh = bb.halfHeight();
 		f32 a = t.a * hw, b = t.c * hh, d = t.b * hw, e = t.d * hh;
-		f32 hw_max = math::max(math::abs(a + b), math::abs(a - b));
-		f32 hh_max = math::max(math::abs(d + e), math::abs(d - e));
+		f32 hw_max = kinc_max(kinc_abs(a + b), kinc_abs(a - b));
+		f32 hh_max = kinc_max(kinc_abs(d + e), kinc_abs(d - e));
 		return aabb::fromCenter(t * center, v2(hw_max, hh_max));
 	}
 }

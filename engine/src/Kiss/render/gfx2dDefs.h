@@ -1,52 +1,64 @@
 #pragma once
 #include <Kiss/pch.h>
 #include <Kiss/math/v2.h>
+#include <Kore/Math/Matrix.h>
 
-namespace kiss {
+FwdStruct(kinc_g4_pipeline);
+FwdStruct(kinc_g4_texture_unit);
+FwdStruct(kinc_g4_constant_location);
+FwdStruct(kinc_g4_vertex_structure);
+FwdStruct(kinc_g4_index_buffer);
+
+namespace kiss 
+{
 	struct atlas;
 	template <typename Vtx, typename VData>
 	class quadBatcher;
 
-	struct textCtx : v2 {
+	struct textCtx : v2 
+	{
 		float start_x;
 		float w;
 		textCtx(float x, float y, float w = 1000) : v2(x, y), start_x(x), w(w) {}
 		textCtx() : v2(0, 0), start_x(0), w(1000) {}
 	};
 
-	namespace gfx2d {
-
-		namespace vertex {
-			struct pos_uv_color {
+	namespace gfx2d 
+	{
+		namespace vertex 
+		{
+			struct pos_uv_color 
+			{
 				v2	pos;
 				s16	u;
 				s16	v;
 				u32	color;
 				pos_uv_color(float x, float y, s16 u, s16 v, u32 color) : pos(x, y), u(u), v(v), color(color) {};
 			};
-			namespace structure {
-				extern gx::VertexStructure pos_uv_color;
-			}
 		}
 
-		namespace quad {
+		struct basicPipe
+		{	
+			kinc_g4_pipeline_t			pipe;
+			kinc_g4_texture_unit_t		texture_unit;
+			kinc_g4_constant_location_t	proj_location;
+			kinc_g4_vertex_structure_t	vertexLayout;
+			Kore::mat3 guiProjection;
+			Kore::mat3 spriteProjection;
+			void init();
+		};
+
+		extern basicPipe Pipe2d;
+
+		namespace quad 
+		{
 			typedef quadBatcher<vertex::pos_uv_color, u32> colored;
 			extern  colored* batcher;
-			extern  gx::IndexBuffer* ibuffer;
-			extern  gx::PipelineState* pipe;
+			extern  kinc_g4_index_buffer_t* ibuffer;
 			namespace atlases {
 				extern atlas* gui;
 				extern atlas* sprites;
 			}
-		}
-
-		namespace matrices {
-			extern m3 proj;// updated from the camera on set
-		}
-
-		namespace screen {
-			extern gx::PipelineState* pipe;
-			extern gx::VertexBuffer* vbuffer;
 		}
 	}
 }

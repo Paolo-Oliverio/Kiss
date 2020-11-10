@@ -7,32 +7,40 @@
 
 //using ctype = entt::family<struct commandtype>;
 
-namespace kiss {
-	namespace gfx2d {
-		namespace command {
+namespace kiss 
+{
+	namespace gfx2d 
+	{
+		namespace command 
+		{
 
-			struct sprite_t {
+			struct sprite_t 
+			{
 				sprId i;
 				f32 x;
 				f32 y;
 			};
 
-			struct sprite_scale_t : sprite_t {
+			struct sprite_scale_t : sprite_t 
+			{
 				f32 sx;
 				f32 sy;
 			};
 
-			struct sprite_rot_t : sprite_t {
+			struct sprite_rot_t : sprite_t 
+			{
 				rot r;
 			};
 
-			struct sprite_rot_scale : sprite_t {
+			struct sprite_rot_scale : sprite_t 
+			{
 				rot r;
 				f32 sx;
 				f32 sy;
 			};
 
-			struct scale9_t {
+			struct scale9_t 
+			{
 				sprId i;
 				aabb s;
 			};
@@ -40,16 +48,19 @@ namespace kiss {
 			struct scale9_horizontal_t : scale9_t {};
 			struct scale9_vertical_t : scale9_t {};
 
-			struct text_t {
+			struct text_t 
+			{
 				const char* s;
 			};
 
-			struct caption_t :text_t {
+			struct caption_t :text_t 
+			{
 				f32 x;
 				f32 y;
 			};
 
-			enum class cmd : u8 {
+			enum class cmd : u8 
+			{
 				sprite = 0,
 				sprite_rot,
 				sprite_scale,
@@ -69,7 +80,8 @@ namespace kiss {
 
 			//TODO paging
 			//(I should be able to request a big amount of memory and return it in the same frame)
-			class buffer{
+			class buffer
+			{
 				u8*		data;
 				size_t	size;
 				size_t	write_pos = 0;
@@ -78,13 +90,15 @@ namespace kiss {
 				
 
 				template <typename T>
-				inline T& read() {
+				inline T& read() 
+				{
 					T& r = *((T*)(data + (u32)read_pos));
 					read_pos += sizeof(T);
 					return r;
 				}
 
-				inline char* readString() {
+				inline char* readString() 
+				{
 					auto a = read<u32>();//string lengh with terminator.
 					char * string = (char*)(data + read_pos);
 					read_pos += a;
@@ -93,7 +107,8 @@ namespace kiss {
 
 			
 				template <typename T>
-				inline buffer& operator << (T s) {
+				inline buffer& operator << (T s) 
+				{
 					//G_ASSERT((write_pos + sizeof(T)) < size, "undersized buffer");
 					*(T*)(data + write_pos) = s;
 					//memcpy(b.data + b.write_pos, &s, sizeof(T));
@@ -101,7 +116,8 @@ namespace kiss {
 					return *this;
 				}
 
-				buffer& operator << (const char * s) {
+				buffer& operator << (const char * s) 
+				{
 					u32 a = (u32)(strlen(s) + 1);
 					//G_ASSERT((write_pos + sizeof(u32) + a) < size, "undersized buffer");
 					*this << a;
@@ -112,31 +128,43 @@ namespace kiss {
 
 			public:
 				
-				inline void reset() {
+				inline void reset() 
+				{
 					write_pos = 0;
 					read_pos = 0;
 				}
 
-				void execute() {
+				void execute() 
+				{
 					auto & quad = *quad::batcher;
 					textCtx text_ctx(0,0);
 					u32 color = 0xFFFFFFFF;
-					while (read_pos < write_pos) {
-						switch (read<cmd>()) {
-							case cmd::sprite :{	
+					while (read_pos < write_pos) 
+					{
+						switch (read<cmd>()) 
+						{
+							case cmd::sprite :
+							{	
 								auto & s = read<sprite_t>();
 								quad.sprite(s.i, s.x, s.y, color);
-							}break;
-							case cmd::scale9: {
+								break;
+							}
+							case cmd::scale9: 
+							{
 								auto & s = read<scale9_t>();
 								quad.scale9(s.i, s.s, color);
-							}break;
-							case cmd::vertexData:{
+								break;
+							}
+							case cmd::vertexData:
+							{
 								color = read<u32>();
-							}break;
-							case cmd::textCtx: {
+								break;
+							}
+							case cmd::textCtx: 
+							{
 								text_ctx = read<textCtx>();
-							}break;
+								break;
+							}
 							case cmd::text: {
 								quad.text(text_ctx, readString(), color);
 							}break;

@@ -4,7 +4,7 @@
 #include <Kiss/math/rot.h>
 #include <Kiss/math/aabb.h>
 #include "entt/entt.hpp"
-#include <Kore/Math/Random.h>
+#include <kinc/math/random.h>
 
 //#include <execution>
 
@@ -18,8 +18,8 @@ namespace kiss {
 			static pos2d rand(aabb& box) {
 				return pos2d{
 					v2(
-						(f32)math::Random::get((u32)box.min.x,(u32)box.max.x),
-						(f32)math::Random::get((u32)box.min.y,(u32)box.max.y)
+						(f32)kinc_random_get_in((u32)box.min.x,(u32)box.max.x),
+						(f32)kinc_random_get_in((u32)box.min.y,(u32)box.max.y)
 					)
 				};
 			}
@@ -31,7 +31,7 @@ namespace kiss {
 
 			static vel2d rand(s32 deg_min, s32 deg_max, f32 multiplier) {
 				return vel2d{
-					rot(deg2rad((f32)math::Random::get(deg_min, deg_max))).to_v2() * multiplier
+					rot(deg2rad((f32)kinc_random_get_in(deg_min, deg_max))).to_v2() * multiplier
 				};
 			}
 		};

@@ -1,5 +1,6 @@
 #pragma once 
 #include <Kiss/pch.h>
+#include <Kore/graphics4/texture.h>
 //#include <cute_math2d.h>
 
 namespace Kore{
@@ -64,14 +65,17 @@ namespace kiss {
 			offset offset;
 		};
 
-		gx::Texture*	texture;
-		sprite*			sprites;
-		sprite*			chars;
-		scale9*			scale9s;
-		font*			fonts;
+		Kore::Graphics4::Texture*	texture;
+		sprite*						sprites;
+		sprite*						chars;
+		scale9*						scale9s;
+		font*						fonts;
+
 		#ifndef NDEBUG
 			sizes			size;
 		#endif	
-		atlas(const char * atlasPath, gx::Texture * texture);
+
+		atlas(const char * atlasPath, const char* textureExtension);
+		~atlas();
 	};
 }

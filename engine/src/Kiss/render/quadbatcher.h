@@ -1,32 +1,42 @@
 #pragma once
 #include <Kiss/pch.h>
 #include <Kiss/data/atlas.h>
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kiss/render/gfx2dDefs.h>
 #include <Kiss/math/v2.h>
 #include <Kiss/math/aabb.h>
 #include <Kiss/math/rot.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/graphics4/vertexstructure.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/pipeline.h>
+#include <Kore/Graphics4/Texture.h>
 #include <cstring>
+#include "Kiss/render/gfx2dDefs.h"
 
 //TODO assert add_sprite out of range
 
-namespace kiss {
+namespace kiss 
+{
 	typedef u16 sprId;
 	struct atlas;
-	constexpr int	max_quads_vtx		= 65535;				//Max quads with one g2d instance.
-	constexpr int	max_quads			= (max_quads_vtx / 4);	//Max quads with one g2d instance.
-	constexpr int	quad_buffers_num	= 4;					//Power of two should be configurable elsewhere.
-	constexpr int	cMaxBufferId		= quad_buffers_num - 1; // Power of two -1;	
 
-	static inline aabb add_position(const tile::posRect& vp, const f32 x, const f32 y) {
-		return aabb(
+	constexpr int	max_quads_vtx		= 0xFFFF;				//Max vertices in vb.
+	constexpr int	max_quads			= (max_quads_vtx / 4);
+	constexpr int	quad_buffers_num	= 4;
+
+	static inline aabb add_position(const tile::posRect& vp, const f32 x, const f32 y) 
+	{
+		return aabb
+		(
 			v2(vp.min.x + x, vp.min.y + y),
 			v2(vp.max.x + x, vp.max.y + y)
 		);
 	}
 
-	static inline aabb scale_and_move(const tile::posRect& vp, const f32 x, const f32 y, const f32 sx, const f32 sy) {
-		return aabb(
+	static inline aabb scale_and_move(const tile::posRect& vp, const f32 x, const f32 y, const f32 sx, const f32 sy)
+	{
+		return aabb
+		(
 			v2(vp.min.x * sx + x, vp.min.y * sy + y),
 			v2(vp.max.x * sx + x, vp.max.y * sy + y)
 		);
@@ -45,113 +55,134 @@ namespace kiss {
 		struct {//Hot
 			Vtx*	vertices		= nullptr;
 			atlas*	atlas			= nullptr;
-			u32		index			= 0;// u16 ?!?
+			u16		start			= 0;
+			u16		index			= 0;// u16 ?!?
 			s16		texel_ratio_x	= 0;
 			s16		texel_ratio_y	= 0;
 			u8		actual_buffer	= 0;
 			u8		font			= 0;
 		};
-
-		struct {//Cold
-			gx::PipelineState*		pipe;
-			gx::VertexBuffer*		vbuffer[quad_buffers_num];
-			gx::TextureUnit			texture_unit;
-			gx::ConstantLocation	projection_matrix_location;
-		};
+		gfx2d::basicPipe* Pipe;
+		kinc_g4_vertex_buffer_t* vbuffer;
 
 	private:
-		inline void check_capacity(int new_vertices) {
-			if (index + new_vertices >= max_quads_vtx) { private_flush(); }
+
+		inline void check_capacity(int new_vertices) 
+		{
+			if (index + new_vertices >= max_quads_vtx) private_flush();
+		}
+		
+		inline u16 maxIndex()
+		{
+			return index / 4 * 6;
 		}
 
-		void private_flush() {
-			vbuffer[actual_buffer]->lock(0, index);
-			vbuffer[actual_buffer]->unlock();
-			gx::setVertexBuffer(*vbuffer[actual_buffer]);
-			gx::setIndexBuffer(*gfx2d::quad::ibuffer);
-			gx::setTexture(texture_unit, atlas->texture);
-			gx::setTextureMagnificationFilter(texture_unit, gx::PointFilter);
-			gx::setTextureMinificationFilter(texture_unit, gx::PointFilter);
-			gx::drawIndexedVertices(0, (index / 4) * 6);
+		void private_flush() 
+		{
+			const auto vb = &vbuffer[actual_buffer];
+			kinc_g4_vertex_buffer_lock(vb, 0, index);
+			//TODO check other unlock
+			//kinc_g4_vertex_buffer_unlock_all(vb);
+			kinc_g4_vertex_buffer_unlock(&vbuffer[actual_buffer], index);
+			kinc_g4_set_vertex_buffer(vb);
+			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
+			kinc_g4_set_texture(Pipe->texture_unit, &atlas->texture->kincTexture);
+			kinc_g4_set_texture_magnification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
+			kinc_g4_set_texture_minification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
+			kinc_g4_draw_indexed_vertices_from_to(0, maxIndex());
 			SwapBuffer();
 		}
 
-		void SwapBuffer() {
+		void SwapBuffer() 
+		{
 			actual_buffer = (actual_buffer + 1) % quad_buffers_num;
 			index = 0;
-			vertices = (Vtx*)vbuffer[actual_buffer]->lock(0, max_quads_vtx);
+			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(&vbuffer[actual_buffer]);
 		}
 
 	public:
-		quadBatcher(gx::PipelineState& pipe) :
-			pipe(&pipe), index(0), atlas(0) {
-			texture_unit = pipe.getTextureUnit("texsampler");
-			projection_matrix_location = pipe.getConstantLocation("xform");
-			gx::VertexStructure& vertex_struct = *pipe.inputLayout[0];
-			for (int i = 0; i < quad_buffers_num; ++i) {
-				vbuffer[i] = new gx::VertexBuffer(max_quads_vtx, vertex_struct, gx::DynamicUsage);
-				vbuffer[i]->lock();
-				vbuffer[i]->unlock();
+		quadBatcher(gfx2d::basicPipe& pipe) :
+			Pipe(&pipe), index(0), atlas(0) 
+		{
+			vbuffer = new kinc_g4_vertex_buffer_t[quad_buffers_num];
+			for (int i = 0; i < quad_buffers_num; ++i) 
+			{
+				auto vb = &vbuffer[i];
+				kinc_g4_vertex_buffer_init(vb, max_quads_vtx, &pipe.vertexLayout, KINC_G4_USAGE_DYNAMIC, 0);
+				kinc_g4_vertex_buffer_lock_all(vb);
+				kinc_g4_vertex_buffer_unlock_all(vb);
 			}
 		}
 
-		~quadBatcher() {
-			for (int i = 0; i <= cMaxBufferId; ++i) {
-				delete vbuffer[i];
+		~quadBatcher() 
+		{
+			for (int i = 0; i < quad_buffers_num; ++i) 
+			{
+				kinc_g4_vertex_buffer_destroy(&vbuffer[i]);
 			}
+			delete[] vbuffer;
 		}
 
-		void begin() {
+		void begin() 
+		{
 			//using namespace gfx2d;
-			//gx::setPipeline(pipe);
-			gx::setIndexBuffer(*gfx2d::quad::ibuffer);
-			gx::setMatrix(projection_matrix_location, gfx2d::matrices::proj);
+			kinc_g4_set_pipeline(&Pipe->pipe);
+			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
+			kinc_matrix3x3_t matrix;
+			memcpy(&matrix.m, &Pipe->spriteProjection.data, sizeof(float) * 9);
+			kinc_g4_set_matrix3(Pipe->proj_location, &matrix);
 			index = 0;
-			vertices = (Vtx*)vbuffer[actual_buffer]->lock();
+			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(&vbuffer[actual_buffer]);
 		}
 
-		inline void end() { 
+		inline void end() 
+		{ 
 			if (index > 0) private_flush();
 		}
 
 		void set_atlas(kiss::atlas* new_atlas) {
-			const auto tex = new_atlas->texture;
+			auto tex = new_atlas->texture;
 			if (atlas == nullptr || atlas->texture != tex) {
 				if (index > 0) private_flush();
-				gx::setTexture(texture_unit, tex);
+				kinc_g4_set_texture(Pipe->texture_unit, &tex->kincTexture);
 				texel_ratio_x = 0x8000 / tex->width;
 				texel_ratio_y = 0x8000 / tex->height;
 			}
 			atlas = new_atlas;
 		}
 
-		inline void setFont(u8 new_font) {
+		inline void setFont(u8 new_font) 
+		{
 			font = new_font;
 		}
 
 		//Sprite Rendering
-		void sprite(const sprId id, const f32 x, const f32 y, const VData d) {
+		void sprite(const sprId id, const f32 x, const f32 y, const VData d)
+		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
 			quad_blit(&vertices[index], add_position(spr.P, x, y), spr.T, d);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const VData d) {
+		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const VData d) 
+		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
 			quad_blit(&vertices[index], scale_and_move(spr.P, x, y, sx, sy), spr.T, d);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const rot r, const VData d) {
+		void sprite(const sprId id, const f32 x, const f32 y, const rot r, const VData d) 
+		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
 			quad_blit_rotated(&vertices[index], aabb(spr.P.min.x, spr.P.min.y, spr.P.max.x, spr.P.max.y), spr.T, x, y, r, d);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const  rot r, const VData d) {
+		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const  rot r, const VData d) 
+		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
 			quad_blit_rotated(&vertices[index],
@@ -160,7 +191,8 @@ namespace kiss {
 			index += 4;
 		}
 
-		void scale9(const sprId id, const aabb& b, const VData d) {
+		void scale9(const sprId id, const aabb& b, const VData d) 
+		{
 			check_capacity(4 * 9);
 			const auto& s = atlas->scale9s[id];//load from atlas.
 			const s16 u0 = s.t.min.u;
@@ -200,7 +232,8 @@ namespace kiss {
 			index += 36;
 		}
 
-		void scale9X(const sprId id, const aabb& b, const VData d) {
+		void scale9X(const sprId id, const aabb& b, const VData d)
+		{
 			check_capacity(12);
 			const auto& s = atlas->scale9s[id];
 			const s16 u0 = s.t.min.u;
@@ -244,7 +277,8 @@ namespace kiss {
 			index += 12;
 		}
 
-		void text(textCtx& ts, const char* text, const VData d) {
+		void text(textCtx& ts, const char* text, const VData d) 
+		{
 			int character = *text++;
 			if (character == 0) return;
 			const atlas::font& f = atlas->fonts[font];
@@ -253,12 +287,16 @@ namespace kiss {
 			auto vtx = &vertices[index];
 			int id;
 			do {
-				if (character > 127) {// accapo.
+				if (character > 127) 
+				{
+					//New Line
 					ts.x = ts.start_x;
 					ts.y += f.lineHeight;
 				}
-				else if (character >= f.start) {
-					if (index >= max_quads_vtx) {
+				else if (character >= f.start) 
+				{
+					if (index >= max_quads_vtx) 
+					{
 						private_flush();
 						vtx = &vertices[index];
 					}
@@ -270,18 +308,22 @@ namespace kiss {
 					index += 4;
 					ts.x += f.kerning;
 				}
-				else if (ts.x > ts.w) {
+				else if (ts.x > ts.w) 
+				{
 					ts.x = ts.start_x;
 					ts.y += f.lineHeight;
 				}
-				else {
+				else 
+				{
 					ts.x += f.kerning;
 				}
 				character = *text++;
-			} while (character != 0);
+			} 
+			while (character != 0);
 		}
 
-		void caption(const char* text, v2 pos, const VData d) {
+		void caption(const char* text, v2 pos, const VData d) 
+		{
 			int character = *text++;
 			if (character == 0) return;
 			const atlas::font& f = atlas->fonts[font];
@@ -289,8 +331,10 @@ namespace kiss {
 			const atlas::sprite* s = &atlas->chars[f.firstChar];
 			float dx = pos.x; int id;
 			do {
-				if (character >= f.start) {
-					if (index >= max_quads_vtx) {
+				if (character >= f.start) 
+				{
+					if (index >= max_quads_vtx) 
+					{
 						private_flush();
 						vtx = &vertices[index];
 					}
@@ -303,7 +347,8 @@ namespace kiss {
 				}
 				dx += f.kerning;
 				character = *text++;
-			} while (character != 0);
+			}
+			while (character != 0);
 		}
 
 		int textLineLenght(const char* text) const {
@@ -315,8 +360,10 @@ namespace kiss {
 	};
 
 	template<typename Vtx, typename VData>
-	void quad_blit(Vtx* vtx, const aabb& p, const  tile::uvRect t, const VData d) {
-		const Vtx vty[4] = {
+	void quad_blit(Vtx* vtx, const aabb& p, const  tile::uvRect t, const VData d) 
+	{
+		const Vtx vty[4] = 
+		{
 			{p.min.x, p.min.y, t.min.u, t.min.v, d},
 			{p.max.x, p.min.y, t.max.u, t.min.v, d},
 			{p.min.x, p.max.y, t.min.u, t.max.v, d},
@@ -326,10 +373,12 @@ namespace kiss {
 	}
 
 	template<typename Vtx, typename VData>
-	void quad_blit_rotated(Vtx* vtx, aabb& pos, const  tile::uvRect t, const  v2 p, const  rot r, const VData d) {
+	void quad_blit_rotated(Vtx* vtx, aabb& pos, const  tile::uvRect t, const  v2 p, const  rot r, const VData d) 
+	{
 		const aabb cos = pos * r.c;
 		const aabb sin = pos * r.s;
-		const Vtx vty[4] = {
+		const Vtx vty[4] =
+		{
 			{(cos.min.x - sin.min.y) + p.x, (cos.min.y + sin.min.x) + p.y, t.min.u, t.min.v, d},
 			{(cos.min.x - sin.min.y) + p.x, (cos.min.y + sin.max.x) + p.y, t.max.u, t.min.v, d},
 			{(cos.max.x - sin.max.y) + p.x, (cos.max.y + sin.min.x) + p.y, t.min.u, t.max.v, d},

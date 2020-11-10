@@ -1,8 +1,6 @@
 #pragma once
 #include <Kiss/pch.h>
 
-namespace math = Kore;
-
 namespace kiss {
 	constexpr f32 cPi = 3.14159265358979323846f;
 	constexpr f32 cEpsilon = 0.000000000001f;
