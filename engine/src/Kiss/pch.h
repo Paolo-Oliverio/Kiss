@@ -1,4 +1,5 @@
-#include <Kore/pch.h>
+#include <kinc/pch.h>
+#include <inttypes.h>
 //#include <cute_math2d.h>
 //#include <Kore/Graphics4/Graphics.h>
 //#include <kinc/graphics4/graphics.h>
@@ -7,15 +8,16 @@
 
 //namespace gx = Kore::Graphics4;
 
-#define FwdStruct(x) struct x; typedef x  x##_t;
+#define FwdStruct(x) struct x; typedef x  x##_t
 
 namespace kiss {
-	typedef Kore::s32 s32;
-	typedef Kore::u32 u32;
-	typedef Kore::s16 s16;
-	typedef Kore::u16 u16;
-	typedef Kore::s8 s8;
-	typedef Kore::u8 u8;
-	//typedef Kore::mat3 m3;
-	typedef float f32;
+	typedef int64_t		s64;
+	typedef uint64_t	u64;
+	typedef int32_t		s32;
+	typedef uint32_t	u32;
+	typedef int16_t		s16;
+	typedef uint16_t	u16;
+	typedef int8_t		s8;
+	typedef uint8_t		u8;
+	typedef float		f32;
 }

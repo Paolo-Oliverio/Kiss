@@ -1,6 +1,5 @@
 #pragma once
 #include <Kiss/pch.h>
-#include <stdint.h>
 
 namespace kiss {
 

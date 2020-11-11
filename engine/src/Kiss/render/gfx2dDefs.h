@@ -1,7 +1,6 @@
 #pragma once
 #include <Kiss/pch.h>
 #include <Kiss/math/v2.h>
-#include <Kore/Math/Matrix.h>
 
 FwdStruct(kinc_g4_pipeline);
 FwdStruct(kinc_g4_texture_unit);
@@ -43,8 +42,8 @@ namespace kiss
 			kinc_g4_texture_unit_t		texture_unit;
 			kinc_g4_constant_location_t	proj_location;
 			kinc_g4_vertex_structure_t	vertexLayout;
-			Kore::mat3 guiProjection;
-			Kore::mat3 spriteProjection;
+			kinc_matrix3x3_t guiProjection;
+			kinc_matrix3x3_t spriteProjection;
 			void init();
 		};
 

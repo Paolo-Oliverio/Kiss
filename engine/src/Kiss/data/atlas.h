@@ -1,13 +1,7 @@
 #pragma once 
 #include <Kiss/pch.h>
-#include <Kore/graphics4/texture.h>
-//#include <cute_math2d.h>
 
-namespace Kore{
-	namespace Graphics4{
-		class Texture;
-	}
-}
+FwdStruct(kinc_g4_texture);
 
 namespace kiss {
 	namespace tile {
@@ -65,7 +59,8 @@ namespace kiss {
 			offset offset;
 		};
 
-		Kore::Graphics4::Texture*	texture;
+		//Kore::Graphics4::Texture*	texture;
+		kinc_g4_texture_t*			texture;
 		sprite*						sprites;
 		sprite*						chars;
 		scale9*						scale9s;

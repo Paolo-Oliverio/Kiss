@@ -1,8 +1,8 @@
 #include <Kiss/data/atlas.h>
-#include <Kore/IO/FileReader.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/textureunit.h>
+#include <kinc/io/filereader.h>
 #include "basicPipeline.h"
 #include "quadbatcher.h"
 
@@ -44,28 +44,36 @@ namespace kiss
 			}
 		}
 
+		static void load_shader(const char* filename, kinc_g4_shader_t* shader, kinc_g4_shader_type_t shader_type)
+		{
+			kinc_file_reader_t file;
+			kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
+			size_t data_size = kinc_file_reader_size(&file);
+			uint8_t* data = (uint8_t*)malloc(data_size);
+			kinc_file_reader_read(&file, data, data_size);
+			kinc_file_reader_close(&file);
+			kinc_g4_shader_init(shader, data, data_size, shader_type);
+			free(data);
+		}
+
 		void basicPipe::init() 
 		{
 			kinc_g4_pipeline_init(&pipe);
-			auto shaderfile = FileReader();
+			//auto shaderfile = FileReader();
 			//-----------------------------------------------------------------------------------
-			shaderfile.open("baseSprite.vert");
-			kinc_g4_shader_init(&basicVertexShader, shaderfile.readAll(), shaderfile.size(), KINC_G4_SHADER_TYPE_VERTEX);
+			load_shader("baseSprite.vert", &basicVertexShader,	KINC_G4_SHADER_TYPE_VERTEX);
+			load_shader("baseSprite.frag", &basicFragmentShader,KINC_G4_SHADER_TYPE_FRAGMENT);
+			//-----------------------------------------------------------------------------------
 			pipe.vertex_shader = &basicVertexShader;
-			shaderfile.close();
-			//-----------------------------------------------------------------------------------
-			shaderfile.open("baseSprite.frag");
-			kinc_g4_shader_init(&basicFragmentShader, shaderfile.readAll(), shaderfile.size(), KINC_G4_SHADER_TYPE_FRAGMENT);
 			pipe.fragment_shader = &basicFragmentShader;
-			shaderfile.close();
 			// Create the input layout //--------------------------------------------------------
 			kinc_g4_vertex_structure_init(&vertexLayout);
-			kinc_g4_vertex_structure_add(&vertexLayout, "Position", KINC_G4_VERTEX_DATA_FLOAT2);
-			kinc_g4_vertex_structure_add(&vertexLayout, "UV",		KINC_G4_VERTEX_DATA_SHORT2_NORM);
-			kinc_g4_vertex_structure_add(&vertexLayout, "Color",	KINC_G4_VERTEX_DATA_COLOR);
+			kinc_g4_vertex_structure_add(&vertexLayout, "pos",	KINC_G4_VERTEX_DATA_FLOAT2);
+			kinc_g4_vertex_structure_add(&vertexLayout, "tex",	KINC_G4_VERTEX_DATA_SHORT2_NORM);
+			kinc_g4_vertex_structure_add(&vertexLayout, "col",	KINC_G4_VERTEX_DATA_COLOR);
 			//-----------------------------------------------------------------------------------
 			pipe.input_layout[0] = &vertexLayout;
-			pipe.input_layout[1] = NULL;
+			pipe.input_layout[1] = nullptr;
 			//-----------------------------------------------------------------------------------
 			pipe.blend_source				= KINC_G4_BLEND_SOURCE_ALPHA;
 			pipe.blend_destination			= KINC_G4_BLEND_INV_SOURCE_ALPHA;
@@ -150,8 +158,8 @@ namespace kiss
 
 		void resize(float w, float h, float scale)
 		{
-			Pipe2d.spriteProjection = matrices::projection(w / scale, h / scale);
-			Pipe2d.guiProjection = matrices::projection(w, h);
+			matrices::projection(Pipe2d.spriteProjection, w / scale, h / scale);
+			matrices::projection(Pipe2d.guiProjection, w, h);
 		}
 
 		void shutdown() 

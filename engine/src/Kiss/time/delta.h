@@ -1,6 +1,6 @@
 #pragma once
 #include <Kiss/pch.h>
-#include <Kore/System.h>
+#include <kinc/system.h>
 #include <cstring>
 
 //TODO: smooth time
@@ -13,7 +13,7 @@ namespace kiss {
 			float raw;
 			float safe;
 		} delta;
-		void init() { lastTime = Kore::System::time(); }
+		void init() { lastTime = kinc_time(); }
 		float update();
 	};
 	extern chrono time;

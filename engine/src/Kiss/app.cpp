@@ -2,8 +2,8 @@
 #include "time/delta.h"
 #include <Kiss/render/basicPipeline.h>
 #include <kinc/graphics4/graphics.h>
-#include <Kore/System.h>
-
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 //#include "sound/soundSystem.h"
 #ifdef KISS_IMGUI
@@ -11,8 +11,6 @@
 	#include <imgui_impl_kinc.h>
 	#include <imgui_impl_g4.h>
 #endif
-
-using namespace Kore;
 
 namespace kiss {
 
@@ -57,14 +55,14 @@ namespace kiss {
 
 		void init(const char* title) 
 		{
-			FramebufferOptions frame;
-			frame.verticalSync = false;
-			frame.depthBufferBits = 0;
-			frame.samplesPerPixel = 1;
-			frame.stencilBufferBits = 0;
-			System::init(title, 1280, 720,nullptr, &frame);
-			System::setCallback(update);
-			System::setShutdownCallback(shutdown);
+			kinc_framebuffer_options frame;
+			frame.vertical_sync = false;
+			frame.depth_bits = 0;
+			frame.samples_per_pixel = 1;
+			frame.stencil_bits = 0;
+			kinc_init(title, 1028, 720, nullptr, &frame);
+			kinc_set_update_callback(update);
+			kinc_set_shutdown_callback(shutdown);
 
 			#ifdef KISS_IMGUI
 				IMGUI_CHECKVERSION();
@@ -74,7 +72,8 @@ namespace kiss {
 				//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 				// Setup Dear ImGui style
-				ImGui::StyleColorsDark();
+				//ImGui::StyleColorsDark();
+				ImGui::StyleColorsLight();
 
 				// Setup Platform/Renderer bindings
 				ImGui_ImplKinc_InitForG4(0);
@@ -84,17 +83,16 @@ namespace kiss {
 
 		void setResolution(const u32 width, const u32 height, const f32 scale, const u32 samples, const u32 zBits, const u32 stencilBits)
 		{
-			auto window = Window::get(0);
-			window->resize(width, height);
+			kinc_window_resize(0, width, height);
 			gfx2d::init();
-			gfx2d::resize(width,height,scale);
-			FramebufferOptions frame;
-			frame.depthBufferBits = zBits;
-			frame.samplesPerPixel = samples;
-			frame.stencilBufferBits = stencilBits;
-			frame.verticalSync = false;
-			window->changeFramebuffer(&frame);
-			window->setResizeCallback(app::resize);
+			gfx2d::resize((float)width, (float)height, scale);
+			kinc_framebuffer_options frame;
+			frame.vertical_sync = false;
+			frame.depth_bits = zBits;
+			frame.samples_per_pixel = samples;
+			frame.stencil_bits = stencilBits;
+			kinc_window_change_framebuffer(0, &frame);
+			kinc_window_set_resize_callback(0, app::resize, 0);
 		}
 	}
 }
@@ -104,7 +102,7 @@ int kickstart(int argc, char** argv)
 	auto result = kiss::app::main(argc, argv);
 	if (result == 0) 
 	{
-		System::start();
+		kinc_start();
 	}
 	return result;
 }

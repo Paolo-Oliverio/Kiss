@@ -9,7 +9,7 @@
 #include <kinc/graphics4/vertexstructure.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
-#include <Kore/Graphics4/Texture.h>
+#include <kinc/graphics4/texture.h>
 #include <cstring>
 #include "Kiss/render/gfx2dDefs.h"
 
@@ -86,7 +86,7 @@ namespace kiss
 			kinc_g4_vertex_buffer_unlock(&vbuffer[actual_buffer], index);
 			kinc_g4_set_vertex_buffer(vb);
 			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
-			kinc_g4_set_texture(Pipe->texture_unit, &atlas->texture->kincTexture);
+			kinc_g4_set_texture(Pipe->texture_unit, atlas->texture);
 			kinc_g4_set_texture_magnification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
 			kinc_g4_set_texture_minification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
 			kinc_g4_draw_indexed_vertices_from_to(0, maxIndex());
@@ -128,9 +128,9 @@ namespace kiss
 			//using namespace gfx2d;
 			kinc_g4_set_pipeline(&Pipe->pipe);
 			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
-			kinc_matrix3x3_t matrix;
-			memcpy(&matrix.m, &Pipe->spriteProjection.data, sizeof(float) * 9);
-			kinc_g4_set_matrix3(Pipe->proj_location, &matrix);
+			//kinc_matrix3x3_t matrix;
+			//memcpy(&matrix.m, &Pipe->spriteProjection.data, sizeof(float) * 9);
+			kinc_g4_set_matrix3(Pipe->proj_location, &Pipe->spriteProjection);
 			index = 0;
 			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(&vbuffer[actual_buffer]);
 		}
@@ -144,9 +144,9 @@ namespace kiss
 			auto tex = new_atlas->texture;
 			if (atlas == nullptr || atlas->texture != tex) {
 				if (index > 0) private_flush();
-				kinc_g4_set_texture(Pipe->texture_unit, &tex->kincTexture);
-				texel_ratio_x = 0x8000 / tex->width;
-				texel_ratio_y = 0x8000 / tex->height;
+				kinc_g4_set_texture(Pipe->texture_unit, tex);
+				texel_ratio_x = 0x8000 / tex->tex_width;
+				texel_ratio_y = 0x8000 / tex->tex_height;
 			}
 			atlas = new_atlas;
 		}
