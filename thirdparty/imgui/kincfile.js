@@ -1,5 +1,5 @@
 let project = new Project('DearImGui');
-project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
+//project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
 project.addIncludeDir('include');
 project.addIncludeDir('sources');
 project.addIncludeDir('imgui');
