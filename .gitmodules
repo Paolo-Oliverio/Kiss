@@ -10,3 +10,6 @@
 [submodule "thirdparty/imgui/imgui"]
 	path = thirdparty/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "thirdparty/box2d/box2d"]
+	path = thirdparty/box2d/box2d
+	url = https://github.com/mtsamis/box2d-optimized.git
