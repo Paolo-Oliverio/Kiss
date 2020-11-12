@@ -1,5 +1,5 @@
 #pragma once
-#include <Kiss/pch.h>
+#include <math.h>
 
 namespace kiss {
 	constexpr f32 cPi = 3.14159265358979323846f;
