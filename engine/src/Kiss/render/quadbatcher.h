@@ -373,16 +373,16 @@ namespace kiss
 	}
 
 	template<typename Vtx, typename VData>
-	void quad_blit_rotated(Vtx* vtx, aabb& pos, const  tile::uvRect t, const  v2 p, const  rot r, const VData d) 
+	void quad_blit_rotated(Vtx* vtx, aabb& pos, const  tile::uvRect t, const float x, const float y, const rot r, const VData d)
 	{
 		const aabb cos = pos * r.c;
 		const aabb sin = pos * r.s;
 		const Vtx vty[4] =
 		{
-			{(cos.min.x - sin.min.y) + p.x, (cos.min.y + sin.min.x) + p.y, t.min.u, t.min.v, d},
-			{(cos.min.x - sin.min.y) + p.x, (cos.min.y + sin.max.x) + p.y, t.max.u, t.min.v, d},
-			{(cos.max.x - sin.max.y) + p.x, (cos.max.y + sin.min.x) + p.y, t.min.u, t.max.v, d},
-			{(cos.max.x - sin.max.y) + p.x, (cos.max.y + sin.max.x) + p.y, t.max.u, t.max.v, d}
+			{ (cos.min.x - sin.min.y) + x, (cos.min.y + sin.min.x) + y, t.min.u, t.min.v, d},
+			{ (cos.max.x - sin.min.y) + x, (cos.min.y + sin.max.x) + y, t.max.u, t.min.v, d },
+			{ (cos.min.x - sin.max.y) + x, (cos.max.y + sin.min.x) + y, t.min.u, t.max.v, d },
+			{ (cos.max.x - sin.max.y) + x, (cos.max.y + sin.max.x) + y, t.max.u, t.max.v, d }
 		};
 		std::memcpy(vtx, vty, sizeof(Vtx) * 4);
 	}
