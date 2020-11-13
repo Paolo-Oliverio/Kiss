@@ -9,6 +9,6 @@ project.addFiles(
 	'imgui/imgui_draw.cpp',
 	'imgui/imgui_widgets.cpp'
 );
-project.addFiles('sources/**', 'include/**', 'shaders/**');
+project.addFiles('sources/**', 'include/**');
 project.addDefine("KISS_IMGUI");
 resolve(project);
