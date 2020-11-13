@@ -1,13 +1,8 @@
 let project = new Project('DearImGui');
 
-if (platform == 'html5')
-{
-	console.log("ciao");
+if (platform == 'html5') {
 	project.addDefine('IMGUI_USER_CONFIG="\\"imguiconfig.h\\""');
-}
-else
-{
-	console.log("merda");
+} else {
 	project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
 }
 
@@ -21,5 +16,5 @@ project.addFiles(
 	'imgui/imgui_widgets.cpp'
 );
 project.addFiles('sources/**', 'include/**');
-project.addDefine("KISS_IMGUI");
+
 resolve(project);

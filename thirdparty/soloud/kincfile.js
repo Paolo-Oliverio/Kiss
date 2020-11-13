@@ -1,11 +1,11 @@
 let p = new Project('soloud');
-p.addDefine("KISS_SOLOUD");
+
 let srcPath = 'soloud/src/';
 p.addIncludeDir('soloud/include');
 p.addFile(srcPath + 'core/**');
 
 {//Sources Selection
-	let sources [
+	let sources = [
 		//"ay",
 		//"monotone",
 		"noise",
@@ -22,13 +22,15 @@ p.addFile(srcPath + 'core/**');
 	for (i = 0; i < nSources;++i)
 	{
 		p.addFile(sourcesPath + sources[i] +'/**');
-		p.addDefine('SOLOUD_'+ sources[i].toUpperCase());
+		let def = 'AUDIO_SOURCE_'+ sources[i].toUpperCase();
+		p.addDefine(def);
+		console.log('#define ' + def);
 	}
 }//End Sources Selection
 
 {//Backend Selection
 	var backend = '';
-	switch (platform): {
+	switch (platform) {
 		case 'html5': 	
 			backend = 'miniaudio'; 	
 			break;
@@ -43,11 +45,13 @@ p.addFile(srcPath + 'core/**');
 			break;
 	}
 	p.addFile(srcPath + 'backend/' + backend +'/**');
-	p.addDefine('WITH_'+backend.toUpperCase());
+	let def = 'WITH_'+backend.toUpperCase();
+	p.addDefine(def);
+	console.log('#define ' + def);
 }//End Backend Selection 
 
 {//Filters Selection
-	let filters [
+	let filters = [
 		//"bassboost",
 		//"biquadresonant",
 		//"dcremoval",
@@ -64,7 +68,9 @@ p.addFile(srcPath + 'core/**');
 	for (i = 0; i < nFilters;++i)
 	{
 		p.addFile(filtersPath + 'soloud_' + filters[i] +'filter.cpp');
-		p.addDefine('SOLOUD_'+ filters[i].toUpperCase());
+		let def = 'SOUND_FILTER_'+ filters[i].toUpperCase();
+		p.addDefine(def);
+		console.log('#define ' + def);
 	}
 }//End Filters Selection
 
