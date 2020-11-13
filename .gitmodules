@@ -16,3 +16,6 @@
 [submodule "thirdparty/soloud/soloud"]
 	path = thirdparty/soloud/soloud
 	url = https://github.com/jarikomppa/soloud.git
+[submodule "samples/kissBasicSample"]
+	path = samples/kissBasicSample
+	url = https://github.com/Paolo-Oliverio/KissBasicSample.git
