@@ -13,3 +13,6 @@
 [submodule "thirdparty/box2d/box2d"]
 	path = thirdparty/box2d/box2d
 	url = https://github.com/mtsamis/box2d-optimized.git
+[submodule "thirdparty/soloud/soloud"]
+	path = thirdparty/soloud/soloud
+	url = https://github.com/jarikomppa/soloud.git
