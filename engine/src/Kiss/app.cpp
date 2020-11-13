@@ -72,8 +72,8 @@ namespace kiss {
 				//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 				// Setup Dear ImGui style
-				//ImGui::StyleColorsDark();
-				ImGui::StyleColorsLight();
+				ImGui::StyleColorsDark();
+				//ImGui::StyleColorsLight();
 
 				// Setup Platform/Renderer bindings
 				ImGui_ImplKinc_InitForG4(0);
