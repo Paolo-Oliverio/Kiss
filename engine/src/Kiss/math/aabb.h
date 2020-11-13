@@ -32,7 +32,7 @@ namespace kiss {
 			return aabb(kiss::clamp(a.min, b.min, b.max),kiss::clamp(a.max, b.min, b.max));
 		}
 		
-		inline aabb operator*(f32 b) { return aabb(min * b, max * b); }
+		inline aabb operator*(f32 b) const { return aabb(min * b, max * b); }
 
 		//inline aabb( circle c) { *this = fromCenter(c.p, v2(c.r, c.r));}
 		inline void addX( f32 x) { min.x += x; max.x += x; }

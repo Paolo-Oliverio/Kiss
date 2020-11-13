@@ -373,7 +373,7 @@ namespace kiss
 	}
 
 	template<typename Vtx, typename VData>
-	void quad_blit_rotated(Vtx* vtx, aabb& pos, const  tile::uvRect t, const float x, const float y, const rot r, const VData d)
+	void quad_blit_rotated(Vtx* vtx, const aabb& pos, const  tile::uvRect t, const float x, const float y, const rot r, const VData d)
 	{
 		const aabb cos = pos * r.c;
 		const aabb sin = pos * r.s;
