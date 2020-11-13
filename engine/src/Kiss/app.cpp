@@ -60,7 +60,7 @@ namespace kiss {
 			frame.depth_bits = 0;
 			frame.samples_per_pixel = 1;
 			frame.stencil_bits = 0;
-			kinc_init(title, 1028, 720, nullptr, &frame);
+			kinc_init(title, 1280, 720, nullptr, &frame);
 			kinc_set_update_callback(update);
 			kinc_set_shutdown_callback(shutdown);
 
