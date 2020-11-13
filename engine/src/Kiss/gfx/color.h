@@ -7,17 +7,17 @@ namespace kiss {
 
 	union iColor {	
 		enum : u32 {
-			Black = 0xFF000000,
-			White = 0xFFFFFFFF,
-			Red = 0xFF0000FF,
-			Blue = 0xFFFF0000,
-			Green = 0xFF00FF00,
-			Magenta = 0xFFFF00FF,
-			Yellow = 0xFF00FFFF,
-			Cyan = 0xFFFFFF00,
-			Purple = 0xFF800080,
-			Pink = 0xFFCBC0FF,
-			Orange = 0xFF00A5FF,
+			Black		= 0xFF000000,
+			White		= 0xFFFFFFFF,
+			Red			= 0xFF0000FF,
+			Blue		= 0xFFFF0000,
+			Green		= 0xFF00FF00,
+			Magenta		= 0xFFFF00FF,
+			Yellow		= 0xFF00FFFF,
+			Cyan		= 0xFFFFFF00,
+			Purple		= 0xFF800080,
+			Pink		= 0xFFCBC0FF,
+			Orange		= 0xFF00A5FF,
 			Transparent = 0x00000000,
 		};
 
