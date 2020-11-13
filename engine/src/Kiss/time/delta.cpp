@@ -12,6 +12,6 @@ namespace kiss{
 		delta.safe = kinc_clamp(dt, 0.0001f, 0.333f);
 		lastTime = time;
 		sum += dt;
-		return delta.safe;
+		return delta.raw;
 	}
 }
