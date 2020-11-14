@@ -10,10 +10,10 @@ namespace kiss {
 					p.options.remainingLoops--;//branchless shit p.playingBackward = !p.PingPongLooping;//p.position = anim.numFrames - 1 + p.playingBackward * anim.numFrames;
 					if (p.options.pingPongLooping) {
 						p.options.playingBackward = !p.options.playingBackward;
-						p.position = pingPongTo;
+						p.frameOffset = pingPongTo;
 					}
 					else {
-						p.position = LoopTo;
+						p.frameOffset = LoopTo;
 					}
 					return true;
 				}
@@ -26,11 +26,11 @@ namespace kiss {
 				do {
 					t += anim.duration;
 					if (p.options.playingBackward) {
-						if (--p.position < 0 && !loops(p, 1, anim.numFrames - 1)) {
+						if (--p.frameOffset < 0 && !loops(p, 1, anim.numFrames - 1)) {
 							return true;
 						}
 					}
-					else if (++p.position >= anim.numFrames && !loops(p, anim.numFrames - 2, 0)) {
+					else if (++p.frameOffset >= anim.numFrames && !loops(p, anim.numFrames - 2, 0)) {
 						return true;
 					}
 				} while (t <= 0); 

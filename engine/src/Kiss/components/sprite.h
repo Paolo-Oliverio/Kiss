@@ -33,7 +33,7 @@ namespace kiss {
 			f32 playbackSpeed;
 			f32 toNextFrame;//second == 6000;
 			//add_sprite id in atlas;
-			s8	position = -1;//offset from add_sprite id.
+			s8	frameOffset = -1;//offset from add_sprite id.
 			properties options;
 		
 			//flipook() { options.stopped = true; };//defaults to stopped player.
@@ -42,7 +42,7 @@ namespace kiss {
 		
 		public:
 			inline u16 getFrame() const {
-				return anim->baseFrame + position;
+				return anim->baseFrame + frameOffset;
 			}
 
 			static inline void play(entt::registry& ecs, entt::entity entity, flipbookData* anim, flipbook::properties options, f32 startFrame = 0.f , f32 speed = 1.f) {
