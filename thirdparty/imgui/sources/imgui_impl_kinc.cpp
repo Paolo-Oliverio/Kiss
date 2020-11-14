@@ -8,6 +8,7 @@
 
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
+//#include <kinc/input/surface.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -16,12 +17,12 @@
 #include "imgui_impl_g4.h"
 
 // Data
-static int  g_Window = NULL;
+static int  g_Window = 0;
 static kinc_ticks_t g_Time = 0;
 static bool         g_MousePressed[5] = { false, false, false, false, false };
 static bool         g_MousePressedCurrently[5] = { false, false, false, false, false };
 //static SDL_Cursor*  g_MouseCursors[ImGuiMouseCursor_COUNT] = {};
-static char*        g_ClipboardTextData = NULL;
+static char*        g_ClipboardTextData = nullptr ;
 
 static const char* ImGui_ImplKinc_GetClipboardText(void*)
 {
@@ -164,6 +165,12 @@ static bool ImGui_ImplKinc_Init(int window)
 	kinc_mouse_release_callback = mouse_release;
 	kinc_mouse_scroll_callback = mouse_scroll;
 
+    /*
+    kinc_surface_touch_start_callback = ;
+    kinc_surface_move_callback
+    kinc_surface_touch_end_callback
+    */
+
     /*g_MouseCursors[ImGuiMouseCursor_Arrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     g_MouseCursors[ImGuiMouseCursor_TextInput] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
     g_MouseCursors[ImGuiMouseCursor_ResizeAll] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
@@ -185,7 +192,7 @@ bool ImGui_ImplKinc_InitForG4(int window)
 
 void ImGui_ImplKinc_Shutdown()
 {
-    g_Window = NULL;
+    g_Window = 0;
 
     // Destroy last known clipboard data
     /*if (g_ClipboardTextData)

@@ -60,14 +60,15 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
     {
         if (g_IndexBufferInitialized) { kinc_g4_index_buffer_destroy(&g_IB); }
         g_IndexBufferSize = draw_data->TotalIdxCount + 10000;
-		kinc_g4_index_buffer_init(&g_IB, g_IndexBufferSize, KINC_G4_INDEX_BUFFER_FORMAT_32BIT);
+		kinc_g4_index_buffer_init(&g_IB, g_IndexBufferSize, KINC_G4_INDEX_BUFFER_FORMAT_16BIT);
 		g_IndexBufferInitialized = true;
     }
 
     // Upload vertex/index data into a single contiguous GPU buffer
 	ImKincVert* vtx_dst = (ImKincVert*)kinc_g4_vertex_buffer_lock(&g_VB,0, draw_data->TotalVtxCount);
-    ImDrawIdx* idx_dst = (ImDrawIdx*)kinc_g4_index_buffer_lock(&g_IB);
+    auto* idx_dst = kinc_g4_index_buffer_lock(&g_IB);
 
+    int global_vtx_offset = 0;
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
@@ -79,9 +80,14 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
             vtx_dst[i].v = (u16)(cmd_list->VtxBuffer.Data[i].uv.y * 32767);
             vtx_dst[i].col = cmd_list->VtxBuffer.Data[i].col;
         }
-        memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+        for (int i = 0; i < cmd_list->IdxBuffer.Size; ++i)
+        {
+            idx_dst[i] =(u32) cmd_list->IdxBuffer.Data[i] + global_vtx_offset;
+        }
+        //memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
         vtx_dst += cmd_list->VtxBuffer.Size;
         idx_dst += cmd_list->IdxBuffer.Size;
+        global_vtx_offset += cmd_list->VtxBuffer.Size;
     }
 	kinc_g4_vertex_buffer_unlock(&g_VB, draw_data->TotalVtxCount);
 	kinc_g4_index_buffer_unlock(&g_IB); 
@@ -96,7 +102,7 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
     // Render command lists
     // (Because we merged all buffers into a single one, we maintain our own offset into them)
     int global_idx_offset = 0;
-    int global_vtx_offset = 0;
+    //int global_vtx_offset = 0;
     ImVec2 clip_off = draw_data->DisplayPos;
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -115,14 +121,16 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
             }
             else
             {
+               // ImGui_ImplG4_SetupRenderState(draw_data);
                 // Apply scissor/clipping rectangle
-				kinc_g4_scissor((int)(pcmd->ClipRect.x - clip_off.x), (int)(pcmd->ClipRect.y - clip_off.y), (int)(pcmd->ClipRect.z - clip_off.x), (int)(pcmd->ClipRect.w - clip_off.y));
+				//kinc_g4_scissor((int)(pcmd->ClipRect.x - clip_off.x), (int)(pcmd->ClipRect.y - clip_off.y), (int)(pcmd->ClipRect.z - clip_off.x), (int)(pcmd->ClipRect.w - clip_off.y));
 
                 // Bind texture, Draw
 				kinc_g4_set_texture(Pipe2d.texture_unit, (kinc_g4_texture*)pcmd->TextureId);
 				kinc_g4_set_vertex_buffer(&g_VB);
 				kinc_g4_set_index_buffer(&g_IB);
-				kinc_g4_draw_indexed_vertices_from_to_from(pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount, pcmd->VtxOffset + global_vtx_offset);
+                kinc_g4_draw_indexed_vertices_from_to(pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount);
+				//kinc_g4_draw_indexed_vertices_from_to_from(pcmd->IdxOffset + global_idx_offset, pcmd->ElemCount, pcmd->VtxOffset + global_vtx_offset);
             }
         }
         global_idx_offset += cmd_list->IdxBuffer.Size;

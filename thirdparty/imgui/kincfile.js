@@ -1,10 +1,14 @@
 let project = new Project('DearImGui');
 
+/*
 if (platform == 'html5') {
 	project.addDefine('IMGUI_USER_CONFIG="\\"imguiconfig.h\\""');
-} else {
+} else if (platform == 'android') {
+	project.addDefine('IMGUI_USER_CONFIG=<imguiconfig.h>');
+}else{
 	project.addDefine('IMGUI_USER_CONFIG="imguiconfig.h"');
 }
+*/
 
 project.addIncludeDir('include');
 project.addIncludeDir('sources');
