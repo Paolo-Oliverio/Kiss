@@ -36,14 +36,16 @@ namespace kiss
 			};
 		}
 
-		struct basicPipe
+		class basicPipe
 		{	
-			kinc_g4_pipeline_t			pipe;
-			kinc_g4_texture_unit_t		texture_unit;
-			kinc_g4_constant_location_t	proj_location;
-			kinc_g4_vertex_structure_t	vertexLayout;
-			kinc_matrix3x3_t guiProjection;
-			kinc_matrix3x3_t spriteProjection;
+			public:
+				kinc_g4_pipeline_t			pipe;
+				kinc_g4_texture_unit_t		texture_unit;
+				kinc_g4_constant_location_t	proj_location;
+				kinc_g4_vertex_structure_t	vertexLayout;
+				kinc_matrix3x3_t			guiProjection;
+				kinc_matrix3x3_t			spriteProjection;
+				float						scaling = 1.f;
 			void init();
 		};
 

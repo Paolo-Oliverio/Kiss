@@ -156,9 +156,9 @@ namespace kiss
 			quad::init();
 		}
 
-		void resize(float w, float h, float scale)
+		void on_resize(float w, float h)
 		{
-			matrices::projection(Pipe2d.spriteProjection, w / scale, h / scale);
+			matrices::projection(Pipe2d.spriteProjection, w / Pipe2d.scaling, h / Pipe2d.scaling);
 			matrices::projection(Pipe2d.guiProjection, w, h);
 		}
 

@@ -19,13 +19,13 @@ namespace kiss {
 		static inline void render(float dt) 
 		{
 			kinc_g4_begin(0);
-			app::render(dt);
+			app::on_render(dt);
 			#ifdef KISS_IMGUI
 				// Start the Dear ImGui frame
 				ImGui_ImplG4_NewFrame();
 				ImGui_ImplKinc_NewFrame(0);
 				ImGui::NewFrame();
-				app::imgui(dt);
+				app::on_imgui(dt);
 				ImGui::Render();
 				ImGui_ImplG4_RenderDrawData(ImGui::GetDrawData());
 			#endif
@@ -36,7 +36,7 @@ namespace kiss {
 		void update() 
 		{
 			auto dt = time.update();
-			app::update(dt);
+			app::on_update(dt);
 			render(dt);
 		}
 
@@ -49,8 +49,16 @@ namespace kiss {
 				ImGui::DestroyContext();
 			#endif
 
-			app::shutdown();
+			app::on_shutdown();
 			gfx2d::shutdown();
+		}
+
+		void resize(int x, int y, void* data){
+			gfx2d::on_resize((float)x, (float)y);
+#ifdef KORE_OPENGL
+			kinc_g4_restore_render_target();
+#endif
+			app::on_resize(x,y);
 		}
 
 		void init(const char* title) 
@@ -81,25 +89,26 @@ namespace kiss {
 			#endif
 		}
 
-		void setResolution(const u32 width, const u32 height, const f32 scale, const u32 samples, const u32 zBits, const u32 stencilBits)
+		void setResolution(const u32 width, const u32 height, const u32 samples, const u32 zBits, const u32 stencilBits)
 		{
 			kinc_window_resize(0, width, height);
 			gfx2d::init();
-			gfx2d::resize((float)width, (float)height, scale);
+			gfx2d::on_resize((float)width, (float)height);
 			kinc_framebuffer_options frame;
 			frame.vertical_sync = false;
 			frame.depth_bits = zBits;
 			frame.samples_per_pixel = samples;
 			frame.stencil_bits = stencilBits;
 			kinc_window_change_framebuffer(0, &frame);
-			kinc_window_set_resize_callback(0, app::resize, 0);
+			kinc_window_set_resize_callback(0, resize, 0);
+			kinc_g4_restore_render_target();
 		}
 	}
 }
 
 int kickstart(int argc, char** argv) 
 {
-	auto result = kiss::app::main(argc, argv);
+	auto result = kiss::app::on_launch(argc, argv);
 	if (result == 0) 
 	{
 		kinc_start();

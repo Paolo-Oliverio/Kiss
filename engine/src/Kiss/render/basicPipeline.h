@@ -8,7 +8,7 @@ namespace kiss
 	namespace gfx2d 
 	{
 		void init();
-		void resize(float w, float h, float Scale);
+		void on_resize(float w, float h);
 		void shutdown();
 
 		namespace matrices 
