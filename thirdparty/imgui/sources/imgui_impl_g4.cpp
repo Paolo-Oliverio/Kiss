@@ -123,7 +123,7 @@ void ImGui_ImplG4_RenderDrawData(ImDrawData* draw_data)
             {
                // ImGui_ImplG4_SetupRenderState(draw_data);
                 // Apply scissor/clipping rectangle
-				//kinc_g4_scissor((int)(pcmd->ClipRect.x - clip_off.x), (int)(pcmd->ClipRect.y - clip_off.y), (int)(pcmd->ClipRect.z - clip_off.x), (int)(pcmd->ClipRect.w - clip_off.y));
+				kinc_g4_scissor((int)(pcmd->ClipRect.x - clip_off.x), (int)(pcmd->ClipRect.y - clip_off.y), (int)(pcmd->ClipRect.z - clip_off.x), (int)(pcmd->ClipRect.w - clip_off.y));
 
                 // Bind texture, Draw
 				kinc_g4_set_texture(Pipe2d.texture_unit, (kinc_g4_texture*)pcmd->TextureId);
