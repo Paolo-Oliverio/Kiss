@@ -95,7 +95,7 @@ namespace kiss {
 			gfx2d::init();
 			gfx2d::on_resize((float)width, (float)height);
 			kinc_framebuffer_options frame;
-			frame.vertical_sync = false;
+			//frame.vertical_sync = true;
 			frame.depth_bits = zBits;
 			frame.samples_per_pixel = samples;
 			frame.stencil_bits = stencilBits;
