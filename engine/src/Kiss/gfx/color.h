@@ -3,8 +3,6 @@
 
 namespace kiss {
 
-
-
 	union iColor {	
 		enum : u32 {
 			Black		= 0xFF000000,
@@ -87,5 +85,13 @@ namespace kiss {
 			b(c.rgba.b / 256.f),
 			a(c.rgba.a / 256.f) {}
 	};*/
-}
 
+	static iColor operator* (iColor a, iColor b) {
+		return {
+			(u8)(((f32)a.rgba.r / 255.f * (f32)b.rgba.r / 255.f) * 255.f),
+			(u8)(((f32)a.rgba.g / 255.f * (f32)b.rgba.g / 255.f) * 255.f),
+			(u8)(((f32)a.rgba.b / 255.f * (f32)b.rgba.b / 255.f) * 255.f),
+			(u8)(((f32)a.rgba.a / 255.f * (f32)b.rgba.a / 255.f) * 255.f)
+		};
+	}
+}
