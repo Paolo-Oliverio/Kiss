@@ -1,5 +1,4 @@
-let p = new Project('DearImGui');
-let enableDemo = 1;
+let p = new Project('imgui');
 
 p.addIncludeDir('sources');
 p.addIncludeDir('imgui');
@@ -7,14 +6,14 @@ p.addFiles(
 	'imgui/imgui.cpp',
 	'imgui/imgui.h',
 	'imgui/imgui_draw.cpp',
-	'imgui/imgui_widgets.cpp'
+	'imgui/imgui_widgets.cpp',
+	'imgui/imgui_demo.cpp'
 );
-if(enableDemo){
-	p.addFiles('imgui/imgui_demo.cpp');
-}else{
-	p.addFiles('imgui/imgui_demo.cpp');
+
+if(!Options.imgui_DemoEnabled){
 	p.addDefine('IMGUI_DISABLE_DEMO_WINDOWS');
 }
+
 p.addFiles('sources/**');
 p.addDefine('IMGUI_DISABLE_OBSOLETE_FUNCTIONS');
 p.addDefine('IMGUI_DISABLE_WIN32_FUNCTIONS');
