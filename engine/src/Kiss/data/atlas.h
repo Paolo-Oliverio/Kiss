@@ -34,9 +34,9 @@ namespace kiss {
 
 		struct sizes {
 			u32 sprites;	//u16
-			u32 chars;	//u16
+			u32 chars;		//u16
 			u32 scale9s;	//u16:12
-			u32 fonts;	//u16:4
+			u32 fonts;		//u16:4
 		};
 
 		struct font {
