@@ -49,7 +49,7 @@ namespace kiss
 	inline void quad_blit_rotated(Vtx* vtx, const aabb& p, const  tile::uvRect t, const  v2 pos, const  rot r, const VData d);
 
 	//template by vertex type.
-	template <typename Vtx, typename VData>
+	template <typename Vtx, typename VData,VData vDataDef>
 	class quadBatcher {
 	private:
 		struct {//Hot
@@ -61,6 +61,7 @@ namespace kiss
 			s16		texel_ratio_y	= 0;
 			u8		actual_buffer	= 0;
 			u8		font			= 0;
+			VData	vdata[4];
 		};
 		gfx2d::basicPipe* Pipe;
 		kinc_g4_vertex_buffer_t* vbuffer;
@@ -126,6 +127,7 @@ namespace kiss
 		void begin() 
 		{
 			//using namespace gfx2d;
+			vdata[0] = vdata[1] = vdata[2] = vdata[3] = vDataDef;
 			kinc_g4_set_pipeline(&Pipe->pipe);
 			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
 			//kinc_matrix3x3_t matrix;
@@ -140,7 +142,26 @@ namespace kiss
 			if (index > 0) private_flush();
 		}
 
-		void set_atlas(kiss::atlas* new_atlas) {
+		void setVData(VData vd) 
+		{
+			vdata[0] = vdata[1] = vdata[2] = vdata[3] = vd;
+		}
+
+		void setVData(VData vd0, VData vd1, VData vd2, VData vd3)
+		{
+			vdata[0] = vd0;
+			vdata[1] = vd1;
+			vdata[2] = vd2;
+			vdata[3] = vd3;
+		}
+
+		void setVData(VData* vd) 
+		{
+			memcpy(vdata, vd, sizeof(VData) * 4);
+		}
+
+		void set_atlas(kiss::atlas* new_atlas) 
+		{
 			auto tex = new_atlas->texture;
 			if (atlas == nullptr || atlas->texture != tex) {
 				if (index > 0) private_flush();
@@ -157,41 +178,41 @@ namespace kiss
 		}
 
 		//Sprite Rendering
-		void sprite(const sprId id, const f32 x, const f32 y, const VData d)
+		void sprite(const sprId id, const f32 x, const f32 y)
 		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
-			quad_blit(&vertices[index], add_position(spr.P, x, y), spr.T, d);
+			quad_blit(&vertices[index], add_position(spr.P, x, y), spr.T);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const VData d) 
+		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy) 
 		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
-			quad_blit(&vertices[index], scale_and_move(spr.P, x, y, sx, sy), spr.T, d);
+			quad_blit(&vertices[index], scale_and_move(spr.P, x, y, sx, sy), spr.T);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const rot r, const VData d) 
+		void sprite(const sprId id, const f32 x, const f32 y, const rot r) 
 		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
-			quad_blit_rotated(&vertices[index], aabb(spr.P.min.x, spr.P.min.y, spr.P.max.x, spr.P.max.y), spr.T, x, y, r, d);
+			quad_blit_rotated(&vertices[index], aabb(spr.P.min.x, spr.P.min.y, spr.P.max.x, spr.P.max.y), spr.T, x, y, r);
 			index += 4;
 		}
 
-		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const  rot r, const VData d) 
+		void sprite(const sprId id, const f32 x, const f32 y, const f32 sx, const f32 sy, const  rot r) 
 		{
 			check_capacity(4);
 			const auto& spr = atlas->sprites[id];
 			quad_blit_rotated(&vertices[index],
 				aabb(spr.P.min.x * sx, spr.P.min.y * sy, spr.P.max.x * sx, spr.P.max.y * sy),
-				spr.T, x, y, r, d);
+				spr.T, x, y, r);
 			index += 4;
 		}
 
-		void scale9(const sprId id, const aabb& b, const VData d) 
+		void scale9(const sprId id, const aabb& b) 
 		{
 			check_capacity(4 * 9);
 			const auto& s = atlas->scale9s[id];//load from atlas.
@@ -217,22 +238,22 @@ namespace kiss
 			const s16 v2 = (v3 - poy * texel_ratio_y);
 			volatile auto vtx = &vertices[index];
 			//up
-			quad_blit(vtx, aabb(x0, y0, x1, y1), { u0, v0, u1, v1 }, d);//6
-			quad_blit(vtx + 4, aabb(x1, y0, x2, y1), { u1, v0, u2, v1 }, d);//7
-			quad_blit(vtx + 8, aabb(x2, y0, x3, y1), { u2, v0, u3, v1 }, d);//8
+			quad_blit(vtx, aabb(x0, y0, x1, y1),		{ u0, v0, u1, v1 }, 0, 0, 0, 0);//6
+			quad_blit(vtx + 4, aabb(x1, y0, x2, y1),	{ u1, v0, u2, v1 }, 0, 1, 0, 1);//7
+			quad_blit(vtx + 8, aabb(x2, y0, x3, y1),	{ u2, v0, u3, v1 }, 1, 1, 1, 1);//8
 			//center
-			quad_blit(vtx + 12, aabb(x0, y1, x1, y2), { u0, v1, u1, v2 }, d);//3
-			quad_blit(vtx + 16, aabb(x1, y1, x2, y2), { u1, v1, u2, v2 }, d);//4
-			quad_blit(vtx + 20, aabb(x2, y1, x3, y2), { u2, v1, u3, v2 }, d);//5
+			quad_blit(vtx + 12, aabb(x0, y1, x1, y2),	{ u0, v1, u1, v2 }, 0, 0, 2, 2);//3
+			quad_blit(vtx + 16, aabb(x1, y1, x2, y2),	{ u1, v1, u2, v2 }, 0, 1, 2, 3);//4
+			quad_blit(vtx + 20, aabb(x2, y1, x3, y2),	{ u2, v1, u3, v2 }, 1, 1, 3, 3);//5
 			//bottom
-			quad_blit(vtx + 24, aabb(x0, y2, x1, y3), { u0, v2, u1, v3 }, d);//0
-			quad_blit(vtx + 28, aabb(x1, y2, x2, y3), { u1, v2, u2, v3 }, d);//1
-			quad_blit(vtx + 32, aabb(x2, y2, x3, y3), { u2, v2, u3, v3 }, d);//2
+			quad_blit(vtx + 24, aabb(x0, y2, x1, y3),	{ u0, v2, u1, v3 }, 2, 2, 2, 2);//0
+			quad_blit(vtx + 28, aabb(x1, y2, x2, y3),	{ u1, v2, u2, v3 }, 2, 3, 2, 3);//1
+			quad_blit(vtx + 32, aabb(x2, y2, x3, y3),	{ u2, v2, u3, v3 }, 3, 3, 3, 3);//2
 			//update quad index.
 			index += 36;
 		}
 
-		void scale9X(const sprId id, const aabb& b, const VData d)
+		void scale9X(const sprId id, const aabb& b)
 		{
 			check_capacity(12);
 			const auto& s = atlas->scale9s[id];
@@ -251,13 +272,13 @@ namespace kiss
 			const s16 u1 = (u0 + nox * texel_ratio_x);
 			const s16 u2 = (u3 - pox * texel_ratio_x);
 			volatile auto vtx = &vertices[index];
-			quad_blit(vtx, aabb(x0, y0, x1, y1), { u0, v0, u1, v1 }, d);
-			quad_blit(vtx + 4, aabb(x1, y0, x2, y1), { u1, v0, u2, v1 }, d);
-			quad_blit(vtx + 8, aabb(x2, y0, x3, y1), { u2, v0, u3, v1 }, d);
+			quad_blit(vtx, aabb(x0, y0, x1, y1),		{ u0, v0, u1, v1 }, 0, 0, 2, 2);
+			quad_blit(vtx + 4, aabb(x1, y0, x2, y1),	{ u1, v0, u2, v1 }, 0, 1, 2, 3);
+			quad_blit(vtx + 8, aabb(x2, y0, x3, y1),	{ u2, v0, u3, v1 }, 1, 1, 3, 3);
 			index += 12;
 		}
 
-		void scale9Y(const sprId id, const aabb& b, const VData d) {
+		void scale9Y(const sprId id, const aabb& b) {
 			check_capacity(12);
 			const auto& s = atlas->scale9s[id];
 			const s16 u0 = s.t.min.u; s16 u1 = s.t.max.u; s16 v0 = s.t.min.v; s16 v3 = s.t.max.v;
@@ -271,13 +292,13 @@ namespace kiss
 			const s16 v1 = (v0 + noy * texel_ratio_y);
 			const s16 v2 = (v3 - poy * texel_ratio_y);
 			volatile auto vtx = &vertices[index];
-			quad_blit(vtx, aabb(x0, y2, x1, y3), { u0, v2, u1, v3 }, d);
-			quad_blit(vtx + 4, aabb(x0, y1, x1, y2), { u0, v1, u1, v2 }, d);
-			quad_blit(vtx + 8, aabb(x0, y0, x1, y1), { u0, v0, u1, v1 }, d);
+			quad_blit(vtx, aabb(x0, y2, x1, y3),		{ u0, v2, u1, v3 }, 0, 1, 0, 1);
+			quad_blit(vtx + 4, aabb(x0, y1, x1, y2),	{ u0, v1, u1, v2 }, 0, 1, 2, 3);
+			quad_blit(vtx + 8, aabb(x0, y0, x1, y1),	{ u0, v0, u1, v1 }, 2, 3, 2, 3);
 			index += 12;
 		}
 
-		void text(textCtx& ts, const char* text, const VData d) 
+		void text(textCtx& ts, const char* text) 
 		{
 			int character = *text++;
 			if (character == 0) return;
@@ -303,7 +324,7 @@ namespace kiss
 					id = character - f.start;
 					auto& rune = s[id];
 					const aabb runePos = add_position(rune.P, ts.x ,ts.y);
-					quad_blit(vtx, runePos, rune.T, d);
+					quad_blit(vtx, runePos, rune.T);
 					vtx += 4;
 					index += 4;
 					ts.x += f.kerning;
@@ -322,7 +343,7 @@ namespace kiss
 			while (character != 0);
 		}
 
-		void caption(const char* text, v2 pos, const VData d) 
+		void caption(const char* text, v2 pos) 
 		{
 			int character = *text++;
 			if (character == 0) return;
@@ -341,7 +362,7 @@ namespace kiss
 					id = character - f.start;
 					auto& rune = s[id];
 					aabb runePos = add_position(rune.P, dx, pos.y);
-					quad_blit(vtx, runePos, rune.T, d);
+					quad_blit(vtx, runePos, rune.T);
 					vtx += 4;
 					index += 4;
 				}
@@ -357,33 +378,44 @@ namespace kiss
 			auto f = atlas->fonts[font];
 			return i * f.kerning;
 		}
+	
+
+		void quad_blit(Vtx* vtx, const aabb& p, const  tile::uvRect t) 
+		{
+			const Vtx vty[4] = 
+			{
+				{p.min.x, p.min.y, t.min.u, t.min.v, vdata[0]},
+				{p.max.x, p.min.y, t.max.u, t.min.v, vdata[1]},
+				{p.min.x, p.max.y, t.min.u, t.max.v, vdata[2]},
+				{p.max.x, p.max.y, t.max.u, t.max.v, vdata[3]}
+			};
+			std::memcpy(vtx, vty, sizeof(Vtx) * 4);
+		}
+
+		void quad_blit(Vtx* vtx, const aabb& p, const  tile::uvRect t, int v0, int v1, int v2, int v3)
+		{
+			const Vtx vty[4] =
+			{
+				{p.min.x, p.min.y, t.min.u, t.min.v, vdata[v0]},
+				{p.max.x, p.min.y, t.max.u, t.min.v, vdata[v1]},
+				{p.min.x, p.max.y, t.min.u, t.max.v, vdata[v2]},
+				{p.max.x, p.max.y, t.max.u, t.max.v, vdata[v3]}
+			};
+			std::memcpy(vtx, vty, sizeof(Vtx) * 4);
+		}
+
+		void quad_blit_rotated(Vtx* vtx, const aabb& pos, const  tile::uvRect t, const float x, const float y, const rot r)
+		{
+			const aabb cos = pos * r.c;
+			const aabb sin = pos * r.s;
+			const Vtx vty[4] =
+			{
+				{ (cos.min.x - sin.min.y) + x, (cos.min.y + sin.min.x) + y, t.min.u, t.min.v, vdata[0]},
+				{ (cos.max.x - sin.min.y) + x, (cos.min.y + sin.max.x) + y, t.max.u, t.min.v, vdata[1]},
+				{ (cos.min.x - sin.max.y) + x, (cos.max.y + sin.min.x) + y, t.min.u, t.max.v, vdata[2]},
+				{ (cos.max.x - sin.max.y) + x, (cos.max.y + sin.max.x) + y, t.max.u, t.max.v, vdata[3]}
+			};
+			std::memcpy(vtx, vty, sizeof(Vtx) * 4);
+		}
 	};
-
-	template<typename Vtx, typename VData>
-	void quad_blit(Vtx* vtx, const aabb& p, const  tile::uvRect t, const VData d) 
-	{
-		const Vtx vty[4] = 
-		{
-			{p.min.x, p.min.y, t.min.u, t.min.v, d},
-			{p.max.x, p.min.y, t.max.u, t.min.v, d},
-			{p.min.x, p.max.y, t.min.u, t.max.v, d},
-			{p.max.x, p.max.y, t.max.u, t.max.v, d}
-		};
-		std::memcpy(vtx, vty, sizeof(Vtx) * 4);
-	}
-
-	template<typename Vtx, typename VData>
-	void quad_blit_rotated(Vtx* vtx, const aabb& pos, const  tile::uvRect t, const float x, const float y, const rot r, const VData d)
-	{
-		const aabb cos = pos * r.c;
-		const aabb sin = pos * r.s;
-		const Vtx vty[4] =
-		{
-			{ (cos.min.x - sin.min.y) + x, (cos.min.y + sin.min.x) + y, t.min.u, t.min.v, d},
-			{ (cos.max.x - sin.min.y) + x, (cos.min.y + sin.max.x) + y, t.max.u, t.min.v, d },
-			{ (cos.min.x - sin.max.y) + x, (cos.max.y + sin.min.x) + y, t.min.u, t.max.v, d },
-			{ (cos.max.x - sin.max.y) + x, (cos.max.y + sin.max.x) + y, t.max.u, t.max.v, d }
-		};
-		std::memcpy(vtx, vty, sizeof(Vtx) * 4);
-	}
 }

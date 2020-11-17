@@ -72,6 +72,7 @@ namespace kiss
 				text,
 				caption,
 				vertexData,
+				vertexData4,
 				font,
 				scissor,
 			};
@@ -80,6 +81,7 @@ namespace kiss
 
 			//TODO paging
 			//(I should be able to request a big amount of memory and return it in the same frame)
+			template <typename VData>
 			class buffer
 			{
 				u8*		data;
@@ -87,8 +89,10 @@ namespace kiss
 				size_t	write_pos = 0;
 				size_t	read_pos = 0;
 
+				struct VDataQuad {
+					VData vd[4];
+				};
 				
-
 				template <typename T>
 				inline T& read() 
 				{
@@ -138,7 +142,6 @@ namespace kiss
 				{
 					auto & quad = *quad::batcher;
 					textCtx text_ctx(0,0);
-					u32 color = 0xFFFFFFFF;
 					while (read_pos < write_pos) 
 					{
 						switch (read<cmd>()) 
@@ -146,18 +149,25 @@ namespace kiss
 							case cmd::sprite :
 							{	
 								auto & s = read<sprite_t>();
-								quad.sprite(s.i, s.x, s.y, color);
+								quad.sprite(s.i, s.x, s.y);
 								break;
 							}
 							case cmd::scale9: 
 							{
 								auto & s = read<scale9_t>();
-								quad.scale9(s.i, s.s, color);
+								quad.scale9(s.i, s.s);
 								break;
 							}
 							case cmd::vertexData:
 							{
-								color = read<u32>();
+								auto s = read<VData>();
+								quad.setVData(s);
+								break;
+							}
+							case cmd::vertexData4:
+							{
+								auto s = read<VDataQuad>();
+								quad.setVData((VData*)&s);
 								break;
 							}
 							case cmd::textCtx: 
@@ -166,7 +176,7 @@ namespace kiss
 								break;
 							}
 							case cmd::text: {
-								quad.text(text_ctx, readString(), color);
+								quad.text(text_ctx, readString());
 							}break;
 							case cmd::font: {
 								quad.setFont(read<u8>());
@@ -224,8 +234,17 @@ namespace kiss
 				inline buffer& textblock(textCtx ctx) {
 					return *this << cmd::textCtx << ctx;
 				}
-				inline buffer& color(u32 s) {
+				inline buffer& color(VData s) {
 					return *this << cmd::vertexData << s;
+				}
+				inline buffer& color(VData* v) {
+					VDataQuad vd;
+					memcpy(&vd, v, sizeof(VDataQuad));
+					return *this << cmd::vertexData4 << vd;
+				}
+				inline buffer& color(VData v0, VData v1, VData v2, VData v3) {
+					VDataQuad vd;
+					return *this << cmd::vertexData4 << vd;
 				}
 				inline buffer& font(u8 s) {
 					return *this << cmd::font << s;

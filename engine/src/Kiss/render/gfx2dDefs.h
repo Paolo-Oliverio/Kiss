@@ -11,7 +11,7 @@ FwdStruct(kinc_g4_index_buffer);
 namespace kiss 
 {
 	struct atlas;
-	template <typename Vtx, typename VData>
+	template <typename Vtx, typename VData, VData vDataDef>
 	class quadBatcher;
 
 	struct textCtx : v2 
@@ -53,7 +53,7 @@ namespace kiss
 
 		namespace quad 
 		{
-			typedef quadBatcher<vertex::pos_uv_color, u32> colored;
+			typedef quadBatcher<vertex::pos_uv_color, u32, 0xFFFFFFFF> colored;
 			extern  colored* batcher;
 			extern  kinc_g4_index_buffer_t* ibuffer;
 			namespace atlases {
