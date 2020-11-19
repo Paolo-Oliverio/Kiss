@@ -1,8 +1,10 @@
 #pragma once
+#ifdef KISS_ENTT
 #include <Kiss/pch.h>
 #include <Kiss/components/sprite.h>
 #include <Kiss/math/rot.h>
 #include <Kiss/math/aabb.h>
+
 #include "entt/entt.hpp"
 #include <kinc/math/random.h>
 
@@ -96,3 +98,4 @@ namespace kiss {
 		}
 	}
 }
+#endif
