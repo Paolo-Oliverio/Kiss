@@ -1,19 +1,28 @@
-#include "atlas.h"
+#include <Kiss/pch.h>
 #include <kinc/graphics4/texture.h>
 #include <kinc/io/filereader.h>
 #include <cstring>
+#include "atlas.h"
+#include <malloc.h>
+
+#define SAFE_DELETE(x) if(x) delete x;
+#define SAFE_DELETE_ARRAY(x) if(x) delete[] x;
 
 namespace kiss 
 {
 	kinc_g4_texture_t* loadTexture(const char* path) {
-		auto texture = new kinc_g4_texture_t;
-		kinc_image_t image;
+		kinc_g4_texture_t* texture = nullptr;
 		size_t size = kinc_image_size_from_file(path);
-		void* image_mem = malloc(size);
-		kinc_image_init_from_file(&image, image_mem, path);
-		kinc_g4_texture_init_from_image(texture, &image);
-		kinc_image_destroy(&image);
-		free(image_mem);
+		if (size) {
+			kinc_image_t image;
+			void* image_mem = alloca(size); //TODO CUSTOM ALLOCATION tmp.
+			if (kinc_image_init_from_file(&image, image_mem, path)) {
+				texture = new kinc_g4_texture_t; //TODO CUSTOM ALLOCATION stack.
+				kinc_g4_texture_init_from_image(texture, &image);
+				kinc_image_destroy(&image);
+			}
+			//free(image_mem);
+		}
 		return texture;
 	}
 
@@ -40,25 +49,35 @@ namespace kiss
 		atlas::sizes size;
 	#endif
 		kinc_file_reader_read(af, &size, sizeof(atlas::sizes));
-		//data.read(&size, sizeof(atlas::sizes));
-		sprites		= new sprite[size.sprites];
-		chars		= new sprite[size.chars];
-		scale9s		= new scale9[size.scale9s];
-		fonts		= new font[size.fonts];
-		kinc_file_reader_read(af, sprites,	sizeof(sprite)	* size.sprites);
-		kinc_file_reader_read(af, chars,	sizeof(sprite)	* size.chars);
-		kinc_file_reader_read(af, scale9s,	sizeof(scale9)	* size.scale9s);
-		kinc_file_reader_read(af, fonts,	sizeof(font)	* size.fonts);
+		const size_t spritemem		= (sizeof(sprite)	* size.sprites);
+		const size_t charsmem		= (sizeof(sprite)	* size.chars);
+		const size_t scale9smem		= (sizeof(scale9)	* size.scale9s);
+		const size_t fontsmem		= (sizeof(font)		* size.fonts);
+		const size_t total = spritemem + charsmem + scale9smem + fontsmem;
+		//TODO ASSERT
+		char * memptr = (char*)malloc(total);
+		kinc_file_reader_read(af, memptr, total);
 		kinc_file_reader_close(af);
+		sprites = (sprite*) memptr;
+		memptr += spritemem;
+
+#define AssignPointer(x,t) if (##x##mem) { x = (##t##*)memptr; memptr += x##mem; } else x = nullptr;
+		AssignPointer(chars, sprite)
+		AssignPointer(scale9s, scale9)
+		AssignPointer(fonts, font)
+#undef AssignPointer
+	}
+
+	void atlas::release()
+	{
+		kinc_g4_texture_destroy(texture);	
+		delete texture;
+		free(sprites);
+		memset(this, 0, sizeof(this));
 	}
 
 	atlas::~atlas()
 	{
-		kinc_g4_texture_destroy(texture);
-		delete texture;
-		delete[] sprites;
-		delete[] chars;
-		delete[] scale9s;
-		delete[] fonts;
+		//TODO assert resources has not been released before.
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once 
 #include <Kiss/pch.h>
 
-FwdStruct(kinc_g4_texture);
+FWD_KINC(g4_texture);
 
 namespace kiss {
 	namespace tile {
@@ -27,6 +27,7 @@ namespace kiss {
 	}
 
 	struct atlas {
+
 		struct sprite {
 			tile::posRect P;
 			tile::uvRect T;
@@ -71,6 +72,7 @@ namespace kiss {
 		#endif	
 
 		atlas(const char * atlasPath, const char* textureExtension);
+		void release();
 		~atlas();
 	};
 }
