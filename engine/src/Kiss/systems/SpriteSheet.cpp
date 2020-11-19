@@ -1,5 +1,5 @@
+#ifdef KISS_ENTT
 #include "SpriteSheet.h"
-#include <execution>
 
 namespace kiss {
 	namespace ecs {
@@ -68,3 +68,4 @@ namespace kiss {
 		}
 	}
 }
+#endif

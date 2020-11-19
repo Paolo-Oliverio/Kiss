@@ -1,4 +1,5 @@
 #pragma once
+#ifdef KISS_ENTT
 #include <Kiss/pch.h>
 #include <entt/entt.hpp>
 
@@ -52,3 +53,4 @@ namespace kiss {
 		};
 	}
 }
+#endif
