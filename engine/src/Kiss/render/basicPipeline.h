@@ -8,9 +8,9 @@ namespace kiss
 	namespace gfx2d 
 	{
 		void init();
+		void release();
 		void on_resize(float w, float h);
-		void shutdown();
-
+		
 		namespace matrices 
 		{
 			inline void projection(kinc_matrix3x3_t& proj, const float w, const float h)

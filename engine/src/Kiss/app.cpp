@@ -50,7 +50,7 @@ namespace kiss {
 			#endif
 
 			app::on_shutdown();
-			gfx2d::shutdown();
+			gfx2d::release();
 		}
 
 		void resize(int x, int y, void* data){

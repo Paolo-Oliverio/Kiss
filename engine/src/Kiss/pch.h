@@ -8,7 +8,8 @@
 
 //namespace gx = Kore::Graphics4;
 
-#define FwdStruct(x) struct x; typedef x  x##_t
+#define FWD_KINC(x) struct kinc_##x; typedef kinc_##x  kinc_##x##_t
+#define FWD_G4(x) struct kinc_g4_##x; typedef kinc_g4_##x  kinc_g4_##x##_t
 
 namespace kiss {
 	typedef int64_t		s64;

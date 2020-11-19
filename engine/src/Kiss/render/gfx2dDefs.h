@@ -2,17 +2,22 @@
 #include <Kiss/pch.h>
 #include <Kiss/math/v2.h>
 
-FwdStruct(kinc_g4_pipeline);
-FwdStruct(kinc_g4_texture_unit);
-FwdStruct(kinc_g4_constant_location);
-FwdStruct(kinc_g4_vertex_structure);
-FwdStruct(kinc_g4_index_buffer);
+FWD_G4(pipeline);
+FWD_G4(texture_unit);
+FWD_G4(constant_location);
+FWD_G4(vertex_structure);
+FWD_G4(index_buffer);
+FWD_G4(shader);
+
+FWD_KINC(matrix3x3);
 
 namespace kiss 
 {
 	struct atlas;
 	template <typename Vtx, typename VData, VData vDataDef>
 	class quadBatcher;
+	struct vbRing;
+	struct ibRing;
 
 	struct textCtx : v2 
 	{
@@ -35,31 +40,46 @@ namespace kiss
 				pos_uv_color(float x, float y, s16 u, s16 v, u32 color) : pos(x, y), u(u), v(v), color(color) {};
 			};
 		}
+		
+		typedef quadBatcher<vertex::pos_uv_color, u32, 0xFFFFFFFF> defaultBatcher;
 
-		class basicPipe
+		class pipeline2d
 		{	
 			public:
-				kinc_g4_pipeline_t			pipe;
-				kinc_g4_texture_unit_t		texture_unit;
-				kinc_g4_constant_location_t	proj_location;
-				kinc_g4_vertex_structure_t	vertexLayout;
-				kinc_matrix3x3_t			guiProjection;
-				kinc_matrix3x3_t			spriteProjection;
-				float						scaling = 1.f;
-			void init();
+				kinc_g4_pipeline_t				pipe;
+				kinc_g4_texture_unit_t			texture_unit;
+				kinc_g4_constant_location_t		proj_location;
+				vbRing*							bufferManager;
+				u8								vertexSize;
+			void init(kinc_g4_shader_t* vshader, kinc_g4_shader_t* fshader, kinc_g4_vertex_structure_t* vlayout);
+			void release();
 		};
+		
+		extern float							scaling;
+		extern defaultBatcher					batcher;
+		extern atlas*							atlas0;
 
-		extern basicPipe Pipe2d;
-
-		namespace quad 
-		{
-			typedef quadBatcher<vertex::pos_uv_color, u32, 0xFFFFFFFF> colored;
-			extern  colored* batcher;
-			extern  kinc_g4_index_buffer_t* ibuffer;
-			namespace atlases {
-				extern atlas* gui;
-				extern atlas* sprites;
-			}
+		namespace base {
+			extern pipeline2d					pipeline;
+			extern kinc_g4_vertex_structure_t	vlayout;
+			extern kinc_g4_shader_t				vshader;
+			extern kinc_g4_shader_t				fshader;
 		}
+
+		namespace vbuffer {
+			extern vbRing						manager;
+		}
+
+		namespace ibuffer {
+			extern  kinc_g4_index_buffer_t		quads;
+			extern  ibRing						manager;
+		}
+
+		namespace xform {
+			extern kinc_matrix3x3_t				gui;
+			extern kinc_matrix3x3_t				sprite;
+		}
+		
+		void init();
 	}
 }

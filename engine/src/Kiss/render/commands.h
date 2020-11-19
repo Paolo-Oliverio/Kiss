@@ -90,7 +90,6 @@ namespace kiss
 
 			void execute() 
 			{
-				auto & quad = *quad::batcher;
 				textCtx text_ctx(0,0);
 				while (read_pos < write_pos) 
 				{
@@ -98,22 +97,22 @@ namespace kiss
 					{
 						case cmd::sprite: {
 							auto& s = read<sprite_t>();
-							quad.sprite(s.i, s.x, s.y);
+							batcher.sprite(s.i, s.x, s.y);
 							break;
 						}
 						case cmd::scale9: {
 							auto & s = read<scale9_t>();
-							quad.scale9(s.i, s.s);
+							batcher.scale9(s.i, s.s);
 							break;
 						}
 						case cmd::vertexData: {
 							auto s = read<VData>();
-							quad.vertexdata(s);
+							batcher.vertexdata(s);
 							break;
 						}
 						case cmd::vertexData4: {
 							auto s = read<VDataQuad>();
-							quad.vertexdata((VData*)&s);
+							batcher.vertexdata((VData*)&s);
 							break;
 						}
 						case cmd::textCtx: {
@@ -121,16 +120,16 @@ namespace kiss
 							break;
 						}
 						case cmd::text: {
-							quad.text(text_ctx, readString());
+							batcher.text(text_ctx, readString());
 							break;
 						}
 						case cmd::font: {
-							quad.font(read<u8>());
+							batcher.font(read<u8>());
 							break;
 						}
 						case cmd::scissor: {
 							auto s = read<scissor_t>();
-							quad.scissor(s.x, s.y, s.w, s.h);
+							batcher.scissor(s.x, s.y, s.w, s.h);
 							break;
 						}
 						default:

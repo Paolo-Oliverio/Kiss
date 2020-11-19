@@ -11,18 +11,17 @@
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/texture.h>
 #include <cstring>
-#include "Kiss/render/gfx2dDefs.h"
+#include "gfx2dDefs.h"
+#include "bufferManager.h"
 
 //TODO assert add_sprite out of range
+
+#define NEWBUFFERONDRAW false
 
 namespace kiss 
 {
 	typedef u16 sprId;
 	struct atlas;
-
-	constexpr int	max_quads_vtx		= 0xFFFF; // Max 65535 vertices per buffer.
-	constexpr int	max_quads			= (max_quads_vtx / 4);
-	constexpr int	quad_buffers_num	= 4;
 
 	static inline aabb add_position(const tile::posRect& vp, const f32 x, const f32 y) 
 	{
@@ -44,25 +43,25 @@ namespace kiss
 	template <typename Vtx, typename VData,VData vDataDef>
 	class quadBatcher {
 	private:
-		struct {//Hot
-			Vtx*	vertices		= nullptr;
-			atlas*	actual_atlas	= nullptr;
-			u16		start			= 0;
-			u16		index			= 0;// u16 ?!?
-			s16		texel_ratio_x	= 0;
-			s16		texel_ratio_y	= 0;
-			u8		actual_buffer	= 0;
-			u8		actual_font		= 0;
-			VData	vdata[4];
-		};
-		gfx2d::basicPipe* Pipe;
+		
+		VData	vdata[4];
+		Vtx*	vertices		= nullptr;
+		atlas*	actual_atlas	= nullptr;
+		u16		start			= 0;
+		u16		index			= 0;
+		u8		actual_font		= 0;
+
+		gfx2d::pipeline2d* pipe = nullptr;
 		kinc_g4_vertex_buffer_t* vbuffer;
+
+		s16		texel_ratio_x	= 0;
+		s16		texel_ratio_y	= 0;
 
 	private:
 
-		inline void check_capacity(int new_vertices) 
+		inline void check_capacity(u32 new_vertices) 
 		{
-			if (index + new_vertices >= max_quads_vtx) private_flush ();
+			if ((u32)index + new_vertices >= pipe->bufferManager->size) private_flush ();
 		}
 		
 		inline u16 maxIndex()
@@ -72,68 +71,48 @@ namespace kiss
 
 		void private_flush(bool full = true) 
 		{
-			const auto vb = &vbuffer[actual_buffer];
-			kinc_g4_vertex_buffer_lock(vb, 0, index);
-			//TODO check other unlock
-			//kinc_g4_vertex_buffer_unlock_all(vb);
-			kinc_g4_vertex_buffer_unlock(&vbuffer[actual_buffer], index);
-			kinc_g4_set_vertex_buffer(vb);
-			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
-			kinc_g4_set_texture(Pipe->texture_unit, actual_atlas->texture);
-			kinc_g4_set_texture_magnification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
-			kinc_g4_set_texture_minification_filter(Pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
+			kinc_g4_vertex_buffer_lock(vbuffer, 0, index);
+			kinc_g4_vertex_buffer_unlock(vbuffer, index);
+
+			kinc_g4_set_vertex_buffer(vbuffer);
+			//kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
+
+			kinc_g4_set_texture(pipe->texture_unit, actual_atlas->texture);
+			kinc_g4_set_texture_magnification_filter(pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
+			kinc_g4_set_texture_minification_filter(pipe->texture_unit, KINC_G4_TEXTURE_FILTER_POINT);
 			auto end = index / 4 * 6;
 			kinc_g4_draw_indexed_vertices_from_to(start, end);
 			if (full) {
-				SwapBuffer();
+				swapBuffer();
 			} else {
 				start = end;
 			}
 		}
 
-		void SwapBuffer() 
+		void swapBuffer() 
 		{
-			actual_buffer = (actual_buffer + 1) % quad_buffers_num;
+			vbuffer = pipe->bufferManager->get();
 			start = 0;
 			index = 0;
-			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(&vbuffer[actual_buffer]);
+			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(vbuffer);
 		}
 
 	public:
-		quadBatcher(gfx2d::basicPipe& pipe) :
-			Pipe(&pipe), index(0), actual_atlas(0) 
-		{
-			vbuffer = new kinc_g4_vertex_buffer_t[quad_buffers_num];
-			for (int i = 0; i < quad_buffers_num; ++i) 
-			{
-				auto vb = &vbuffer[i];
-				kinc_g4_vertex_buffer_init(vb, max_quads_vtx, &pipe.vertexLayout, KINC_G4_USAGE_DYNAMIC, 0);
-				kinc_g4_vertex_buffer_lock_all(vb);
-				kinc_g4_vertex_buffer_unlock_all(vb);
-			}
-		}
+		quadBatcher() : index(0), actual_atlas(nullptr) {}
 
-		~quadBatcher() 
+		void begin(gfx2d::pipeline2d* pipe, atlas* textureAtlas)
 		{
-			for (int i = 0; i < quad_buffers_num; ++i) 
-			{
-				kinc_g4_vertex_buffer_destroy(&vbuffer[i]);
-			}
-			delete[] vbuffer;
-		}
-
-		void begin() 
-		{
-			//using namespace gfx2d;
+			using namespace gfx2d;
+			atlas(textureAtlas);
+			this->pipe = pipe;
 			start = 0;
-			vdata[0] = vdata[1] = vdata[2] = vdata[3] = vDataDef;
-			kinc_g4_set_pipeline(&Pipe->pipe);
-			kinc_g4_set_index_buffer(gfx2d::quad::ibuffer);
-			//kinc_matrix3x3_t matrix;
-			//memcpy(&matrix.m, &Pipe->spriteProjection.data, sizeof(float) * 9);
-			kinc_g4_set_matrix3(Pipe->proj_location, &Pipe->spriteProjection);
 			index = 0;
-			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(&vbuffer[actual_buffer]);
+			vdata[0] = vdata[1] = vdata[2] = vdata[3] = vDataDef;
+			kinc_g4_set_pipeline(&pipe->pipe);
+			kinc_g4_set_index_buffer(&ibuffer::quads);
+			kinc_g4_set_matrix3(pipe->proj_location, &xform::sprite);
+			vbuffer = pipe->bufferManager->get();
+			vertices = (Vtx*)kinc_g4_vertex_buffer_lock_all(vbuffer);
 		}
 
 		inline void end() 
@@ -162,12 +141,14 @@ namespace kiss
 		void atlas(kiss::atlas* new_atlas) 
 		{
 			auto tex = new_atlas->texture;
-			if (actual_atlas == nullptr || actual_atlas->texture != tex) {
-				if (index > 0) private_flush(false);
-				kinc_g4_set_texture(Pipe->texture_unit, tex);
-				texel_ratio_x = 0x8000 / tex->tex_width;
-				texel_ratio_y = 0x8000 / tex->tex_height;
+			if (actual_atlas != nullptr && actual_atlas->texture == tex)
+			{
+				actual_atlas = new_atlas;
+				return;
 			}
+			texel_ratio_x = 0x8000 / tex->tex_width;
+			texel_ratio_y = 0x8000 / tex->tex_height;
+			if (actual_atlas != nullptr && index > 0) private_flush(NEWBUFFERONDRAW);
 			actual_atlas = new_atlas;
 		}
 
@@ -315,7 +296,7 @@ namespace kiss
 				}
 				else if (character >= f.start) 
 				{
-					if (index >= max_quads_vtx) 
+					if (index >= pipe->bufferManager->size)
 					{
 						private_flush();
 						vtx = &vertices[index];
@@ -353,7 +334,7 @@ namespace kiss
 			do {
 				if (character >= f.start) 
 				{
-					if (index >= max_quads_vtx) 
+					if (index >= pipe->bufferManager->size)
 					{
 						private_flush();
 						vtx = &vertices[index];
@@ -379,7 +360,7 @@ namespace kiss
 		}
 
 		void scissor(int x, int y, int w, int h) {
-			private_flush(false);
+			private_flush(NEWBUFFERONDRAW);
 			kinc_g4_scissor(x, y, w, h);
 		}
 	
