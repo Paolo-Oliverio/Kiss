@@ -8,10 +8,10 @@ p.addFile(srcPath + 'core/**');
 	let sources = [
 		//"ay",
 		//"monotone",
-		"noise",
+		//"noise",
 		//"openmpt",
-		//"sfxr2",
-		//"speech2",
+		"sfxr",
+		//"speech",
 		//"tedsid",
 		//"vic",
 		//"vizsn",
@@ -32,13 +32,16 @@ p.addFile(srcPath + 'core/**');
 	var backend = '';
 	switch (platform) {
 		case 'html5': 	
-			backend = 'miniaudio'; 	
+			//backend = 'sdl_static';
+			backend = 'miniaudio';	
 			break;
 		case 'android': 
-			backend = 'opensles';	
+			backend = 'miniaudio';	
+			//backend = 'opensles';	
 			break;
 		case 'windows': 
-			backend = 'xaudio2';	
+			//backend = 'xaudio2';	
+			backend = 'miniaudio';	
 			break;
 		default: 
 			backend = 'null';	
@@ -55,7 +58,7 @@ p.addFile(srcPath + 'core/**');
 		//"bassboost",
 		//"biquadresonant",
 		//"dcremoval",
-		//"echo",
+		"echo",
 		//"fft",
 		//"flanger",
 		//"freeverb",
