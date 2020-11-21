@@ -98,7 +98,7 @@ namespace kiss
 		}
 
 	public:
-		quadBatcher() : index(0), actual_atlas(nullptr) {}
+		quadBatcher() : actual_atlas(nullptr), index(0) {}
 
 		void begin(gfx2d::pipeline2d* pipe, atlas* textureAtlas)
 		{
@@ -218,17 +218,18 @@ namespace kiss
 			const s16 v2 = (v3 - poy * texel_ratio_y);
 			volatile auto vtx = &vertices[index];
 			//up
-			quad_blit(vtx, aabb(x0, y0, x1, y1),		{ u0, v0, u1, v1 }, 0, 0, 0, 0);//6
-			quad_blit(vtx + 4, aabb(x1, y0, x2, y1),	{ u1, v0, u2, v1 }, 0, 1, 0, 1);//7
-			quad_blit(vtx + 8, aabb(x2, y0, x3, y1),	{ u2, v0, u3, v1 }, 1, 1, 1, 1);//8
+			quad_blit(vtx, aabb(x0, y0, x1, y1),		{{u0, v0}, {u1, v1}}, 0, 0, 0, 0);//6
+			quad_blit(vtx, aabb(x0, y0, x1, y1),		{{u0, v0}, {u1, v1}}, 0, 0, 0, 0);//6
+			quad_blit(vtx + 4, aabb(x1, y0, x2, y1),	{{u1, v0}, {u2, v1}}, 0, 1, 0, 1);//7
+			quad_blit(vtx + 8, aabb(x2, y0, x3, y1),	{{u2, v0}, {u3, v1}}, 1, 1, 1, 1);//8
 			//center
-			quad_blit(vtx + 12, aabb(x0, y1, x1, y2),	{ u0, v1, u1, v2 }, 0, 0, 2, 2);//3
-			quad_blit(vtx + 16, aabb(x1, y1, x2, y2),	{ u1, v1, u2, v2 }, 0, 1, 2, 3);//4
-			quad_blit(vtx + 20, aabb(x2, y1, x3, y2),	{ u2, v1, u3, v2 }, 1, 1, 3, 3);//5
+			quad_blit(vtx + 12, aabb(x0, y1, x1, y2),	{{u0, v1}, {u1, v2}}, 0, 0, 2, 2);//3
+			quad_blit(vtx + 16, aabb(x1, y1, x2, y2),	{{u1, v1}, {u2, v2}}, 0, 1, 2, 3);//4
+			quad_blit(vtx + 20, aabb(x2, y1, x3, y2),	{{u2, v1}, {u3, v2}}, 1, 1, 3, 3);//5
 			//bottom
-			quad_blit(vtx + 24, aabb(x0, y2, x1, y3),	{ u0, v2, u1, v3 }, 2, 2, 2, 2);//0
-			quad_blit(vtx + 28, aabb(x1, y2, x2, y3),	{ u1, v2, u2, v3 }, 2, 3, 2, 3);//1
-			quad_blit(vtx + 32, aabb(x2, y2, x3, y3),	{ u2, v2, u3, v3 }, 3, 3, 3, 3);//2
+			quad_blit(vtx + 24, aabb(x0, y2, x1, y3),	{{u0, v2}, {u1, v3}}, 2, 2, 2, 2);//0
+			quad_blit(vtx + 28, aabb(x1, y2, x2, y3),	{{u1, v2}, {u2, v3}}, 2, 3, 2, 3);//1
+			quad_blit(vtx + 32, aabb(x2, y2, x3, y3),	{{u2, v2}, {u3, v3}}, 3, 3, 3, 3);//2
 			//update quad index.
 			index += 36;
 		}
@@ -252,9 +253,9 @@ namespace kiss
 			const s16 u1 = (u0 + nox * texel_ratio_x);
 			const s16 u2 = (u3 - pox * texel_ratio_x);
 			volatile auto vtx = &vertices[index];
-			quad_blit(vtx, aabb(x0, y0, x1, y1),		{ u0, v0, u1, v1 }, 0, 0, 2, 2);
-			quad_blit(vtx + 4, aabb(x1, y0, x2, y1),	{ u1, v0, u2, v1 }, 0, 1, 2, 3);
-			quad_blit(vtx + 8, aabb(x2, y0, x3, y1),	{ u2, v0, u3, v1 }, 1, 1, 3, 3);
+			quad_blit(vtx, aabb(x0, y0, x1, y1), { {u0, v0}, {u1, v1} }, 0, 0, 2, 2);
+			quad_blit(vtx + 4, aabb(x1, y0, x2, y1), { {u1, v0}, {u2, v1} }, 0, 1, 2, 3);
+			quad_blit(vtx + 8, aabb(x2, y0, x3, y1), { {u2, v0}, {u3, v1} }, 1, 1, 3, 3);
 			index += 12;
 		}
 
@@ -272,9 +273,9 @@ namespace kiss
 			const s16 v1 = (v0 + noy * texel_ratio_y);
 			const s16 v2 = (v3 - poy * texel_ratio_y);
 			volatile auto vtx = &vertices[index];
-			quad_blit(vtx, aabb(x0, y2, x1, y3),		{ u0, v2, u1, v3 }, 0, 1, 0, 1);
-			quad_blit(vtx + 4, aabb(x0, y1, x1, y2),	{ u0, v1, u1, v2 }, 0, 1, 2, 3);
-			quad_blit(vtx + 8, aabb(x0, y0, x1, y1),	{ u0, v0, u1, v1 }, 2, 3, 2, 3);
+			quad_blit(vtx, aabb(x0, y2, x1, y3), { {u0, v2}, {u1, v3} }, 0, 1, 0, 1);
+			quad_blit(vtx + 4, aabb(x0, y1, x1, y2), { {u0, v1}, {u1, v2} }, 0, 1, 2, 3);
+			quad_blit(vtx + 8, aabb(x0, y0, x1, y1), { {u0, v0}, {u1, v1} }, 2, 3, 2, 3);
 			index += 12;
 		}
 
@@ -284,7 +285,8 @@ namespace kiss
 			if (character == 0) return;
 			const atlas::font& f = actual_atlas->fonts[actual_font];
 			const atlas::sprite* s = &actual_atlas->chars[f.firstChar];
-			const float lineHeight = (float)f.lineHeight;
+			const float lineHeight	= (float)f.lineHeight;
+			const float kerning		= (float)f.kerning;
 			auto vtx = &vertices[index];
 			int id;
 			do {
@@ -292,7 +294,7 @@ namespace kiss
 				{
 					//New Line
 					ts.x = ts.start_x;
-					ts.y += f.lineHeight;
+					ts.y += lineHeight;
 				}
 				else if (character >= f.start) 
 				{
@@ -307,16 +309,16 @@ namespace kiss
 					quad_blit(vtx, runePos, rune.T);
 					vtx += 4;
 					index += 4;
-					ts.x += f.kerning;
+					ts.x += kerning;
 				}
 				else if (ts.x > ts.w) 
 				{
 					ts.x = ts.start_x;
-					ts.y += f.lineHeight;
+					ts.y += lineHeight;
 				}
 				else 
 				{
-					ts.x += f.kerning;
+					ts.x += kerning;
 				}
 				character = *text++;
 			} 
@@ -330,6 +332,7 @@ namespace kiss
 			const atlas::font& f = actual_atlas->fonts[actual_font];
 			volatile auto vtx = &vertices[index];
 			const atlas::sprite* s = &actual_atlas->chars[f.firstChar];
+			const float kerning = (float)f.kerning;
 			float dx = pos.x; int id;
 			do {
 				if (character >= f.start) 
@@ -346,7 +349,7 @@ namespace kiss
 					vtx += 4;
 					index += 4;
 				}
-				dx += f.kerning;
+				dx += kerning;
 				character = *text++;
 			}
 			while (character != 0);
@@ -355,7 +358,7 @@ namespace kiss
 		int textLineLenght(const char* text) const {
 			int i = 0;
 			while (*text++ != 0) i++;
-			auto f = actual_atlas->fonts[font];
+			auto f = actual_atlas->fonts[actual_font];
 			return i * f.kerning;
 		}
 

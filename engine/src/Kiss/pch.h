@@ -10,7 +10,7 @@
 
 #define FWD_KINC(x) struct kinc_##x; typedef kinc_##x  kinc_##x##_t
 #define FWD_G4(x) struct kinc_g4_##x; typedef kinc_g4_##x  kinc_g4_##x##_t
-
+/*
 namespace kiss {
 	typedef int64_t		s64;
 	typedef uint64_t	u64;
@@ -21,4 +21,20 @@ namespace kiss {
 	typedef int8_t		s8;
 	typedef uint8_t		u8;
 	typedef float		f32;
+}*/
+
+namespace kiss
+{
+	using u8 =	uint8_t;
+    using u16 = uint16_t;
+    using u32 = uint32_t;
+    using u64 = uint64_t;   
+
+    using s8 =	int8_t;
+    using s16 = int16_t;
+    using s32 = int32_t;
+    using s64 = int64_t;
+
+	using f32 = float;
+    using f64 = double;
 }

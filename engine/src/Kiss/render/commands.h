@@ -23,8 +23,8 @@ namespace kiss
 
 			u8*		data;
 			size_t	size;
-			size_t	write_pos = 0;
-			size_t	read_pos = 0;
+			size_t	write_pos;
+			size_t	read_pos;
 
 			template <typename T>
 			inline T& read() 
@@ -141,10 +141,10 @@ namespace kiss
 			}
 	
 			commandBuffer(u8 * ptr, u32 size) :
-				size(size), 
-				read_pos(0),
-				write_pos(0),
-				data(ptr)
+				data(ptr),
+				size(size),
+				write_pos(0), 
+				read_pos(0)
 			{}
 
 			commandBuffer& textblock(float x, float y, float w = 1000) {

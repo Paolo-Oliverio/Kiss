@@ -8,8 +8,8 @@ namespace kiss {
 	struct rot {
 		f32 c;
 		f32 s;
-		rot() :s(0.f), c(1.f) {}
-		rot(f32 radians) : s(sinf(radians)), c(cosf(radians)) {}
+		rot() :c(1.f), s(0.f) {}
+		rot(f32 radians) : c(cosf(radians)), s(sinf(radians)) {}
 		rot(f32 c, f32 s) :c(c), s(s) {}
 
 		

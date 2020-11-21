@@ -12,18 +12,17 @@ namespace kiss
 	constexpr int	max_quads_v = 0xFFFF; // Max 65535 vertices per buffer.
 	constexpr int	max_quads = max_quads_v / 4;
 	constexpr int	max_quads_i = max_quads * 6;
-	constexpr int	buffers_num = 16;
+	constexpr int	buffers_num = 4;
 
 	void load_shader(const char* filename, kinc_g4_shader_t* shader, kinc_g4_shader_type_t shader_type)
 	{
 		kinc_file_reader_t file;
 		kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
 		size_t data_size = kinc_file_reader_size(&file);
-		uint8_t* data = (uint8_t*)alloca(data_size);//TODO CUSTOM ALLOCATION TEMP
+		uint8_t* data = (uint8_t*)alloca(data_size);
 		kinc_file_reader_read(&file, data, data_size);
 		kinc_file_reader_close(&file);
 		kinc_g4_shader_init(shader, data, data_size, shader_type);
-		//free(data);
 	}
 
 	namespace gfx2d 
@@ -45,8 +44,6 @@ namespace kiss
 				kinc_g4_vertex_structure_add(&vlayout, "tex", KINC_G4_VERTEX_DATA_SHORT2_NORM);
 				kinc_g4_vertex_structure_add(&vlayout, "col", KINC_G4_VERTEX_DATA_COLOR);
 				//-----------------------------------------------------------------------------------
-				//load_shader("baseSprite.vert", &vshader, KINC_G4_SHADER_TYPE_VERTEX);
-				//load_shader("baseSprite.frag", &fshader, KINC_G4_SHADER_TYPE_FRAGMENT);
 				load_shader(vshader_name, &vshader, KINC_G4_SHADER_TYPE_VERTEX);
 				load_shader(fshader_name, &fshader, KINC_G4_SHADER_TYPE_FRAGMENT);
 				//------------------------------------------------------------------------------------
@@ -84,7 +81,6 @@ namespace kiss
 				//-------------------------------------------------------------------------------------------
 				kinc_g4_index_buffer_init(&quads, max_quads_i, KINC_G4_INDEX_BUFFER_FORMAT_16BIT);
 				auto ndx = kinc_g4_index_buffer_lock(&quads);
-				//auto ndx = ib->lock();
 				for (int i = 0; i < max_quads; ++i)
 				{
 					ndx[0] = i * 4;

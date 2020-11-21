@@ -61,7 +61,7 @@ namespace kiss
 		sprites = (sprite*) memptr;
 		memptr += spritemem;
 
-#define AssignPointer(x,t) if (##x##mem) { x = (##t##*)memptr; memptr += x##mem; } else x = nullptr;
+#define AssignPointer(x,t) if ( x##mem) { x = ( t *)memptr; memptr += x##mem; } else x = nullptr;
 		AssignPointer(chars, sprite)
 		AssignPointer(scale9s, scale9)
 		AssignPointer(fonts, font)
@@ -73,7 +73,7 @@ namespace kiss
 		kinc_g4_texture_destroy(texture);	
 		delete texture;
 		free(sprites);
-		memset(this, 0, sizeof(this));
+		memset(this, 0, sizeof(*this));
 	}
 
 	atlas::~atlas()

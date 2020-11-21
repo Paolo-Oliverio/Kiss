@@ -86,7 +86,8 @@ namespace kiss {
 			a(c.rgba.a / 256.f) {}
 	};*/
 
-	static iColor operator* (iColor a, iColor b) {
+	
+	static iColor mul (iColor a, iColor b) {
 		return {
 			(u8)(((f32)a.rgba.r / 255.f * (f32)b.rgba.r / 255.f) * 255.f),
 			(u8)(((f32)a.rgba.g / 255.f * (f32)b.rgba.g / 255.f) * 255.f),

@@ -39,7 +39,7 @@ namespace kiss {
 		
 			//flipook() { options.stopped = true; };//defaults to stopped player.
 		private : 
-			flipbook(flipbookData* anim, float frame, properties options, f32 speed) : anim(anim), toNextFrame(), options(options), playbackSpeed(speed){}
+			flipbook(flipbookData* anim, float frame, properties options, f32 speed) : anim(anim), playbackSpeed(speed), toNextFrame(), options(options){}
 		
 		public:
 			inline u16 getFrame() const {

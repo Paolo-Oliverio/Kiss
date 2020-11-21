@@ -12,10 +12,7 @@ namespace kiss
 		buffers = new kinc_g4_vertex_buffer_t[num];
 		for (int i = 0; i < num; ++i)
 		{
-			auto vb = &buffers[i];
-			kinc_g4_vertex_buffer_init(vb, size, type, KINC_G4_USAGE_DYNAMIC, 0);
-			//kinc_g4_vertex_buffer_lock_all(vb);
-			//kinc_g4_vertex_buffer_unlock_all(vb);
+			kinc_g4_vertex_buffer_init(&buffers[i], size, type, KINC_G4_USAGE_DYNAMIC, 0);
 		}
 	}
 
@@ -41,10 +38,7 @@ namespace kiss
 		buffers = new kinc_g4_index_buffer_t[num];
 		for (int i = 0; i < num; ++i)
 		{
-			auto b = &buffers[i];
-			kinc_g4_index_buffer_init(b, size, KINC_G4_INDEX_BUFFER_FORMAT_16BIT);
-			//kinc_g4_vertex_buffer_lock_all(vb);
-			//kinc_g4_vertex_buffer_unlock_all(vb);
+			kinc_g4_index_buffer_init(&buffers[i], size, KINC_G4_INDEX_BUFFER_FORMAT_16BIT);
 		}
 	}
 
