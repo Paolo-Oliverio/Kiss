@@ -1,27 +1,41 @@
 #include <kinc/pch.h>
 #include <inttypes.h>
-//#include <cute_math2d.h>
-//#include <Kore/Graphics4/Graphics.h>
-//#include <kinc/graphics4/graphics.h>
-//#include <Kore/Log.h>
-//--to ./build_html5
-
-//namespace gx = Kore::Graphics4;
 
 #define FWD_KINC(x) struct kinc_##x; typedef kinc_##x  kinc_##x##_t
 #define FWD_G4(x) struct kinc_g4_##x; typedef kinc_g4_##x  kinc_g4_##x##_t
-/*
-namespace kiss {
-	typedef int64_t		s64;
-	typedef uint64_t	u64;
-	typedef int32_t		s32;
-	typedef uint32_t	u32;
-	typedef int16_t		s16;
-	typedef uint16_t	u16;
-	typedef int8_t		s8;
-	typedef uint8_t		u8;
-	typedef float		f32;
-}*/
+
+#define SAFE_DELETE(x) if(x) delete x;
+#define SAFE_DELETE_ARRAY(x) if(x) delete[] x;
+
+#ifndef KISS_IMGUI
+#define WithImgui(x)
+#else
+#define WithImgui(x) x
+#endif
+
+#ifndef KISS_BOX2D
+    #define WithBox2D(x)
+#else
+    #define WithBox2D(x) x
+#endif
+
+#ifndef KISS_ENTT
+    #define WithEntt(x)
+#else
+    #define WithEntt(x) x
+#endif
+
+#ifndef KISS_SOLOUD 
+    #define WithSoloud(x) 
+#else 
+    #define WithSoloud(x) x 
+#endif
+
+#ifndef KISS_HFSM2
+    #define Withfsm(x) 
+#else 
+    #define Withfsm(x) x 
+#endif
 
 namespace kiss
 {

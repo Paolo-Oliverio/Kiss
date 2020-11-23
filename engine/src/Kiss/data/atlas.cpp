@@ -5,9 +5,6 @@
 #include "atlas.h"
 #include <malloc.h>
 
-#define SAFE_DELETE(x) if(x) delete x;
-#define SAFE_DELETE_ARRAY(x) if(x) delete[] x;
-
 namespace kiss 
 {
 	kinc_g4_texture_t* loadTexture(const char* path) {
