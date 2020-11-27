@@ -137,6 +137,8 @@ namespace kiss {
             {
                 if (button < 5)
                 {
+                    auto& io = ImGui::GetIO();
+                    io.MousePos = ImVec2((float)x, (float)y);
                     pressed[button] = true;
                     pressedCurrently[button] = true;
                 }
@@ -146,6 +148,8 @@ namespace kiss {
             {
                 if (button < 5)
                 {
+                    auto& io = ImGui::GetIO();
+                    io.MousePos = ImVec2((float)x, (float)y);
                     pressedCurrently[button] = false;
                 }
             }
